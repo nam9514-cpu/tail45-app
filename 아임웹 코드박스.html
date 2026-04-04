@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Member Code Information</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #f0f0f0; /* Ensure body has a light background */
+    }
+    #memberCode {
+      color: red;
+    }
+    #qrcodeW {
+      margin-top: 10px;
+      background-color: #f0f0f0; /* Ensure white background */
+      padding: 10px; /* Ensure padding around the QR code */
+      border: 1px solid #000; /* Add a solid border to ensure visibility */
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for contrast */
+      display: inline-block;
+    }
+    #status {
+      margin: 5px 0;
+      font-weight: bold;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <center><div id="qrcodeW"></center></div>
+
+  <script>
+    $(document).ready(function() {
+      console.log("jQuery version:", $.fn.jquery);
+
+      function fetchMemberCode() {
+        $("#status").text("Fetching member code...");
+        var memberCode = "";
+        $('a').each(function() {
+          var href = $(this).attr('onclick');
+          if (href) {
+            var match = href.match(/m[a-zA-Z0-9]{14,}/); // Regex to match the member code pattern
+            if (match) {
+              memberCode = match[0];
+              return false; // Stop the loop once we find the member code
+            }
+          }
+        });
+
+        if (memberCode) {
+          $("#status").text("Member code found:");
+          $("#memberCode").text(memberCode);
+          // Generate the QR code for memberCode
+          new QRCode(document.getElementById("qrcodeW"), {
+            text: "" + memberCode,
+            width: 228,
+            height: 228,
+            correctLevel: QRCode.CorrectLevel.L
+          });
+        } else {
+          $("#status").text("Member code not found.");
+        }
+      }
+
+      // Fetch member code when the page is loaded
+      fetchMemberCode();
+    });
+  </script>
+</body>
+
+</html>
