@@ -212,6 +212,33 @@ function addPetForm(e) {
                     <input type="number" class="auth-pet-weight" placeholder="23" min="0" max="100" step="0.1">
                 </div>
             </div>
+            <div class="input-group">
+                <label>성별</label>
+                <div style="display:flex; gap:10px; margin-top:6px;">
+                    <label class="pet-radio-card" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px; border:1.5px solid #E5E7EB; border-radius:10px; cursor:pointer; font-size:0.9rem; font-weight:600; color:#555; background:#FAFAFA; transition:all 0.2s;" onclick="this.querySelector('input').checked=true; this.parentElement.querySelectorAll('.pet-radio-card').forEach(c=>{c.style.borderColor='#E5E7EB';c.style.background='#FAFAFA';c.style.color='#555';}); this.style.borderColor='var(--primary)';this.style.background='#E8F8F0';this.style.color='var(--primary)';">
+                        <input type="radio" name="pet-gender-${idx}" class="auth-pet-gender" value="male" style="display:none;">
+                        <i class="ph ph-gender-male" style="font-size:1.1rem;"></i> 남아
+                    </label>
+                    <label class="pet-radio-card" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px; border:1.5px solid #E5E7EB; border-radius:10px; cursor:pointer; font-size:0.9rem; font-weight:600; color:#555; background:#FAFAFA; transition:all 0.2s;" onclick="this.querySelector('input').checked=true; this.parentElement.querySelectorAll('.pet-radio-card').forEach(c=>{c.style.borderColor='#E5E7EB';c.style.background='#FAFAFA';c.style.color='#555';}); this.style.borderColor='var(--primary)';this.style.background='#E8F8F0';this.style.color='var(--primary)';">
+                        <input type="radio" name="pet-gender-${idx}" class="auth-pet-gender" value="female" style="display:none;">
+                        <i class="ph ph-gender-female" style="font-size:1.1rem;"></i> 여아
+                    </label>
+                </div>
+            </div>
+            <div class="input-group" style="margin-top:2px;">
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <label class="pet-check-card" style="display:flex; align-items:center; gap:10px; padding:11px 14px; border:1.5px solid #E5E7EB; border-radius:10px; cursor:pointer; font-size:0.88rem; font-weight:500; color:#555; background:#FAFAFA; transition:all 0.2s;" onclick="var cb=this.querySelector('input');cb.checked=!cb.checked; if(cb.checked){this.style.borderColor='var(--primary)';this.style.background='#E8F8F0';this.style.color='var(--primary)';}else{this.style.borderColor='#E5E7EB';this.style.background='#FAFAFA';this.style.color='#555';}">
+                        <input type="checkbox" class="auth-pet-neutered" style="display:none;">
+                        <i class="ph ph-scissors" style="font-size:1.1rem;"></i>
+                        <span>중성화 수술 완료</span>
+                    </label>
+                    <label class="pet-check-card" style="display:flex; align-items:center; gap:10px; padding:11px 14px; border:1.5px solid #E5E7EB; border-radius:10px; cursor:pointer; font-size:0.88rem; font-weight:500; color:#555; background:#FAFAFA; transition:all 0.2s;" onclick="var cb=this.querySelector('input');cb.checked=!cb.checked; if(cb.checked){this.style.borderColor='var(--primary)';this.style.background='#E8F8F0';this.style.color='var(--primary)';}else{this.style.borderColor='#E5E7EB';this.style.background='#FAFAFA';this.style.color='#555';}">
+                        <input type="checkbox" class="auth-pet-vaccinated" style="display:none;">
+                        <i class="ph ph-syringe" style="font-size:1.1rem;"></i>
+                        <span>필수 예방 접종 완료</span>
+                    </label>
+                </div>
+            </div>
         </div>
     `;
     container.insertAdjacentHTML('beforeend', html);
@@ -238,11 +265,12 @@ function removePetForm(idx) {
 const DB = {
     user: { 
         id: 'U1001', 
-        name: '현욱님', 
+        name: '현욱',
         pointBalance: 12500, 
         phone: '01012345678',
         password: 'password1!',
         code: 'm20240101demo00000001',
+        passwordChanged: true,
         pointHistory: [
             { id: 1, type: '적립', desc: '매장 상품 리뷰 혜택', date: '2026년 3월 27일', amount: '+100' },
             { id: 2, type: '사용', desc: '1시간 이용권', date: '2026년 3월 20일', amount: '-1500' },
@@ -264,7 +292,7 @@ const DB = {
     activeTicket: null,
     registeredUsers: [
         // 묵시적으로 가입된 데모 계정
-        { phone: '01012345678', password: 'password1!', name: '현욱님', code: 'm20240101demo00000001' }
+        { phone: '01012345678', password: 'password1!', name: '현욱', code: 'm20240101demo00000001' }
     ]
 };
 
@@ -358,7 +386,7 @@ function bindEvents() {
 
     if(els.sosBtn) {
         els.sosBtn.addEventListener('click', () => {
-            showAlert("직원 호출 SOS", "관리자에게 긴급 알림을 전송했습니다.<br>곧 담당 직원이 확인 후 연락드립니다.");
+            window.location.href = 'tel:0507-1387-4602';
         });
     }
 
@@ -484,10 +512,10 @@ function signupNextStep(currentStep) {
             showAlert('이메일 오류', '올바른 이메일 형식을 입력해주세요.');
             return;
         }
-        // 비밀번호 규칙: 8자 이상, 대문자 1개, 숫자 1개
-        const pwdRegex = /^(?=.*[A-Z])(?=.*[0-9]).{8,}$/;
+        // 비밀번호 규칙: 영문+숫자 포함 8자리 이상
+        const pwdRegex = /^(?=.*[A-Za-z])(?=.*[0-9]).{8,}$/;
         if(!pwdRegex.test(pwd)) {
-            showAlert('비밀번호 오류', '비밀번호는 8자 이상이며 대문자 1개, 숫자 1개를 포함해야 합니다.');
+            showAlert('비밀번호 오류', '비밀번호는 영문과 숫자를 포함하여 8자리 이상이어야 합니다.');
             return;
         }
         if(pwd !== pwdConfirm) {
@@ -586,6 +614,10 @@ function handleSignupComplete() {
             const pAgeYear = block.querySelector('.auth-pet-age-year').value.trim();
             const pAgeMonth = block.querySelector('.auth-pet-age-month').value.trim();
             const pWeight = block.querySelector('.auth-pet-weight').value.trim();
+            const pGenderEl = block.querySelector('.auth-pet-gender:checked');
+            const pGender = pGenderEl ? pGenderEl.value : '미선택';
+            const pNeutered = block.querySelector('.auth-pet-neutered').checked;
+            const pVaccinated = block.querySelector('.auth-pet-vaccinated').checked;
 
             if (pName) {
                 const petAgeStr = `${pAgeYear || 0}살 ${pAgeMonth || 0}개월`;
@@ -595,7 +627,10 @@ function handleSignupComplete() {
                     name: pName,
                     size: petSize,
                     age: petAgeStr,
-                    weight: pWeight ? pWeight + 'kg' : '미등록'
+                    weight: pWeight ? pWeight + 'kg' : '미등록',
+                    gender: pGender,
+                    neutered: pNeutered,
+                    vaccinated: pVaccinated
                 });
             }
         });
@@ -603,9 +638,9 @@ function handleSignupComplete() {
     }
 
     if (legacyLinked) {
-        showAlert('🎉 가입 완료! (기존 고객 연동)', name + '님, 환영합니다!<br>이전 고객 정보와 반려견 <b>' + DB.pets.length + '마리</b>의 데이터가 자동으로 연동되었습니다.<br>로그인하여 확인하세요.');
+        showAlert('🎉 가입 완료! (기존 고객 연동)', nameWithHonorific(name) + ', 환영합니다!<br>이전 고객 정보와 반려견 <b>' + DB.pets.length + '마리</b>의 데이터가 자동으로 연동되었습니다.<br>로그인하여 확인하세요.');
     } else {
-        showAlert('🎉 가입 완료!', name + '님, 테일45 회원이 되신 것을 환영합니다!<br>로그인하여 시작하세요.');
+        showAlert('🎉 가입 완료!', nameWithHonorific(name) + ', 테일45 회원이 되신 것을 환영합니다!<br>로그인하여 시작하세요.');
     }
     toggleAuthMode(); // 로그인 화면으로 전환
 }
@@ -632,6 +667,7 @@ function handleSocialLogin(provider) {
     DB.user.email = '';
     DB.user.address = '간편가입 주소 미등록';
     DB.user.provider = provider;
+    DB.user.passwordChanged = true;
     DB.pets = [];
     loginSuccess();
     showAlert('간편 로그인 성공', `${providerName} 계정으로 로그인했습니다.<br>(개발용 모의 접속입니다.)`);
@@ -673,6 +709,7 @@ function handleLogin() {
                 DB.user.address = legacyMember.address || '미등록';
                 DB.user.gender = legacyMember.gender;
                 DB.user.birth = legacyMember.birth;
+                DB.user.passwordChanged = false;
 
                 // 해당 고객의 반려견 데이터 자동 로드
                 if (typeof EXISTING_DOGS !== 'undefined') {
@@ -693,7 +730,7 @@ function handleLogin() {
                 loginSuccess();
                 const petCount = DB.pets.length;
                 const petMsg = petCount > 0 ? `<br>반려견 <b>${petCount}마리</b>의 정보도 함께 불러왔습니다.` : '';
-                showAlert('기존 고객 로그인 성공 🐾', legacyMember.name + '님, 다시 만나서 반갑습니다!' + petMsg + '<br><br><span style="font-size:0.8rem;color:#888;">💡 마이페이지에서 비밀번호를 설정하시면 다음부터 비밀번호로 로그인하실 수 있습니다.</span>');
+                showAlert('기존 고객 로그인 성공 🐾', nameWithHonorific(legacyMember.name) + ', 다시 만나서 반갑습니다!' + petMsg + '<br><br><span style="font-size:0.8rem;color:#888;">💡 마이페이지에서 비밀번호를 설정하시면 다음부터 비밀번호로 로그인하실 수 있습니다.</span>');
                 return;
             } else {
                 // 전화번호는 매칭되지만 이름이 다른 경우
@@ -719,9 +756,10 @@ function handleLogin() {
     DB.user.username = user.username ? '@' + user.username : DB.user.username;
     DB.user.email = user.email || DB.user.email;
     DB.user.address = user.address || DB.user.address;
+    DB.user.passwordChanged = true;
 
     loginSuccess();
-    showAlert('로그인 성공', user.name + '님, 환영합니다!<br>Tail45 앱 환경에 접속하셨습니다.');
+    showAlert('로그인 성공', nameWithHonorific(user.name) + ', 환영합니다!<br>Tail45 앱 환경에 접속하셨습니다.');
 }
 
 
@@ -771,6 +809,56 @@ function loginSuccess() {
     }
     
     switchView('view-home');
+
+    // 활성 티켓이 있으면 영업시간 기준으로 QR 활성 상태 판단
+    setTimeout(function() { updateQrActiveDisplay(); }, 100);
+
+    // 비밀번호 미변경 고객에게 홈 화면 알림 표시 (QR 카드 바로 아래)
+    if (!DB.user.passwordChanged) {
+        setTimeout(function() {
+            var existing = document.getElementById('home-pwd-notice');
+            if (existing) return;
+            var qrCard = document.querySelector('.qr-center-card');
+            if (!qrCard) return;
+            var notice = document.createElement('div');
+            notice.id = 'home-pwd-notice';
+            notice.style.cssText = 'background:#FEF3C7; border:1.5px solid #FDE68A; border-radius:14px; padding:16px 18px; margin-top:16px; cursor:pointer; transition:all 0.2s;';
+            notice.innerHTML = '<div style="display:flex;align-items:flex-start;gap:12px;">'
+                + '<div style="width:32px;height:32px;border-radius:10px;background:#FDE68A;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'
+                + '<i class="ph-fill ph-warning" style="font-size:1.1rem;color:#D97706;"></i></div>'
+                + '<div style="flex:1;">'
+                + '<p style="margin:0 0 4px;font-size:0.85rem;font-weight:700;color:#92400E;">비밀번호 변경이 필요합니다</p>'
+                + '<p style="margin:0;font-size:0.78rem;color:#A16207;line-height:1.55;">처음 접속하신 고객님은 반드시 새 비밀번호를 설정해주세요. 비밀번호를 변경하신 고객님에 한하여 결제 및 예약이 가능합니다.</p>'
+                + '<div style="margin-top:10px;display:inline-flex;align-items:center;gap:4px;background:#D97706;color:#fff;padding:6px 14px;border-radius:8px;font-size:0.78rem;font-weight:700;">'
+                + '<i class="ph ph-lock-key" style="font-size:0.85rem;"></i> 비밀번호 변경하기</div>'
+                + '</div></div>';
+            notice.onclick = function() { openPasswordChangeModal(); };
+            qrCard.after(notice);
+        }, 300);
+    }
+
+    // 모든 고객에게 프로필 확인 안내 표시 (QR 카드 아래, 비밀번호 알림 아래)
+    setTimeout(function() {
+        var existing = document.getElementById('home-profile-notice');
+        if (existing) return;
+        // 비밀번호 알림이 있으면 그 뒤에, 없으면 QR 카드 뒤에 삽입
+        var anchor = document.getElementById('home-pwd-notice') || document.querySelector('.qr-center-card');
+        if (!anchor) return;
+        var notice = document.createElement('div');
+        notice.id = 'home-profile-notice';
+        notice.style.cssText = 'background:#EFF6FF; border:1.5px solid #BFDBFE; border-radius:14px; padding:16px 18px; margin-top:16px; cursor:pointer; transition:all 0.2s;';
+        notice.innerHTML = '<div style="display:flex;align-items:flex-start;gap:12px;">'
+            + '<div style="width:32px;height:32px;border-radius:10px;background:#BFDBFE;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'
+            + '<i class="ph-fill ph-user-circle" style="font-size:1.1rem;color:#2563EB;"></i></div>'
+            + '<div style="flex:1;">'
+            + '<p style="margin:0 0 4px;font-size:0.85rem;font-weight:700;color:#1E40AF;">개인정보 확인 안내</p>'
+            + '<p style="margin:0;font-size:0.78rem;color:#3B82F6;line-height:1.55;">프로필 탭에서 개인정보와 반려견 정보를 확인하시고 오류가 있다면<br>업데이트를 권장드립니다.</p>'
+            + '<div style="margin-top:10px;display:inline-flex;align-items:center;gap:4px;background:#2563EB;color:#fff;padding:6px 14px;border-radius:8px;font-size:0.78rem;font-weight:700;">'
+            + '<i class="ph ph-user-gear" style="font-size:0.85rem;"></i> 프로필 확인하기</div>'
+            + '</div></div>';
+        notice.onclick = function() { switchView('view-mypage'); };
+        anchor.after(notice);
+    }, 350);
 }
 
 function updateProfileUI() {
@@ -778,7 +866,7 @@ function updateProfileUI() {
     
     const setTxt = (id, txt) => { const el = document.getElementById(id); if(el) el.innerText = txt; };
     
-    setTxt('profile-display-name', DB.user.name + "님");
+    setTxt('profile-display-name', nameWithHonorific(DB.user.name));
     
     // 이메일 칸에 프로바이더별 표기
     let emailText = DB.user.email;
@@ -800,7 +888,7 @@ function updateProfileUI() {
     
     if(DB.user.gender) {
         let genStr = DB.user.gender === 'M' ? '남' : (DB.user.gender === 'F' ? '여' : '');
-        if (genStr) setTxt('profile-display-name', `${DB.user.name}님 (${genStr})`);
+        if (genStr) setTxt('profile-display-name', `${nameWithHonorific(DB.user.name)} (${genStr})`);
     }
 
     const petsListEl = document.getElementById('profile-pets-list');
@@ -842,7 +930,7 @@ function updateProfileUI() {
         }
     }
     
-    setTxt('rewards-username', DB.user.name);
+    setTxt('rewards-username', nameWithHonorific(DB.user.name));
 }
 
 function switchView(viewId) {
@@ -1005,6 +1093,12 @@ function renderYardStatus() {
 function setText(id, val) {
     const el = document.getElementById(id);
     if (el) el.textContent = val;
+}
+
+// 이름 뒤에 "님" 자동 부착 (이미 "님"으로 끝나면 중복 방지)
+function nameWithHonorific(name) {
+    if (!name) return '';
+    return name.endsWith('님') ? name : name + ' 님';
 }
 
 function initYardStatus() {
@@ -1201,6 +1295,13 @@ function updateDpSummary() {
 }
 
 function handleDaypassPurchase() {
+    // 비밀번호 미변경 시 결제 차단
+    if (!DB.user.passwordChanged) {
+        showAlert('비밀번호 변경 필요', '결제를 진행하시려면 먼저 비밀번호를 변경해주세요.<br>비밀번호 변경 화면으로 이동합니다.', function() {
+            openPasswordChangeModal();
+        });
+        return;
+    }
     if (!dpState.selectedDate) {
         showAlert("입력 필요", "이용 날짜를 선택해주세요.");
         return;
@@ -1254,6 +1355,12 @@ function handleDaypassPurchase() {
         els.homeQrStatus.className = "text-sm mt-3 text-primary font-bold";
     }
 
+    // QR 카드 활성 시각 표시 (영업시간 내인 경우에만)
+    updateQrActiveDisplay();
+
+    // 토스트 피드백
+    if (typeof showToast === 'function') showToast('당일권이 발급되었습니다', 'check-circle');
+
     // 폼 초기화
     dpState.selectedDate = null;
     dpState.selectedPets = [];
@@ -1269,6 +1376,65 @@ function formatDateStr(date) {
 }
 
 // 당일권 영업 종료 자동 만료 체크 (1분마다)
+// 운동장 영업 종료 시간 반환 (평일 20:00, 주말/공휴일 21:00)
+function getYardClosingHour(date) {
+    var d = date instanceof Date ? date : new Date(date);
+    var day = d.getDay(); // 0=일, 6=토
+    return (day === 0 || day === 6) ? 21 : 20;
+}
+
+// 운동장 영업 시작 시간 반환 (평일 12:00, 주말/공휴일 11:00)
+function getYardOpeningHour(date) {
+    var d = date instanceof Date ? date : new Date(date);
+    var day = d.getDay(); // 0=일, 6=토
+    return (day === 0 || day === 6) ? 11 : 12;
+}
+
+// QR 카드 활성 상태 시각 표시 (직접 on/off)
+function setQrActiveState(active) {
+    var wrapper = document.querySelector('.qr-wrapper');
+    if (!wrapper) return;
+    var existingBadge = document.getElementById('qr-active-badge');
+    if (active) {
+        wrapper.classList.add('qr-active');
+        if (els.homeQrImg) els.homeQrImg.style.opacity = '1';
+        if (!existingBadge) {
+            var badge = document.createElement('div');
+            badge.id = 'qr-active-badge';
+            badge.className = 'qr-active-badge';
+            badge.innerHTML = '<i class="ph-fill ph-check-circle"></i> 이용권 활성';
+            wrapper.parentElement.insertBefore(badge, wrapper.nextSibling);
+        }
+    } else {
+        wrapper.classList.remove('qr-active');
+        if (existingBadge) existingBadge.remove();
+    }
+}
+
+// 활성 티켓의 날짜·영업시간 기준으로 QR 활성 상태 자동 판단
+function updateQrActiveDisplay() {
+    if (!DB.activeTicket || DB.activeTicket.status === '만료') {
+        setQrActiveState(false);
+        return;
+    }
+    var now = new Date();
+    var todayStr = formatDateStr(now);
+    var ticketDate = DB.activeTicket.date;
+    // 티켓 날짜가 오늘이고, 현재 시각이 영업시간 내인 경우에만 활성
+    if (ticketDate === todayStr) {
+        var openHour = getYardOpeningHour(now);
+        var closeHour = getYardClosingHour(now);
+        if (now.getHours() >= openHour && now.getHours() < closeHour) {
+            setQrActiveState(true);
+        } else {
+            setQrActiveState(false);
+        }
+    } else {
+        // 티켓 날짜가 오늘이 아니면 비활성 (미래 예약이거나 이미 지난 날짜)
+        setQrActiveState(false);
+    }
+}
+
 function checkDaypassExpiry() {
     if (!DB.activeTicket || DB.activeTicket.type !== '당일권') return;
     if (DB.activeTicket.status === '만료') return;
@@ -1285,16 +1451,28 @@ function checkDaypassExpiry() {
             els.homeQrStatus.innerText = msg;
             els.homeQrStatus.className = "text-sm mt-3 text-gray font-bold";
         }
+        // QR 이미지도 기본 상태로 되돌리기
+        if (els.homeQrImg) {
+            els.homeQrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=EXPIRED';
+            els.homeQrImg.style.opacity = '0.3';
+        }
+        // QR 활성 상태 해제
+        setQrActiveState(false);
     }
 
-    // 티켓 날짜가 오늘이고 영업 종료 시간(21:00) 이후면 만료
-    if (ticketDate === todayStr && now.getHours() >= 21) {
-        expireDaypass("영업이 종료되어 당일권이 만료되었습니다.");
+    // 티켓 날짜가 오늘이고 영업 종료 시간 이후면 만료 (평일 20:00, 주말 21:00)
+    var closingHour = getYardClosingHour(now);
+    if (ticketDate === todayStr && now.getHours() >= closingHour) {
+        expireDaypass("영업이 종료되어 당일권이 만료되었습니다. (종료 " + closingHour + ":00)");
     }
     // 티켓 날짜가 이미 지났으면 만료
     if (ticketDate < todayStr) {
         expireDaypass("이용 날짜가 지나 당일권이 만료되었습니다.");
+        return;
     }
+
+    // 만료되지 않았으면 영업시간 기준으로 QR 활성 상태 갱신
+    updateQrActiveDisplay();
 }
 
 function initDaypassCalendar() {
@@ -1520,6 +1698,13 @@ function updateRsvSummary() {
 }
 
 function handleReservationSubmit() {
+    // 비밀번호 미변경 시 예약 차단
+    if (!DB.user.passwordChanged) {
+        showAlert('비밀번호 변경 필요', '예약을 진행하시려면 먼저 비밀번호를 변경해주세요.<br>비밀번호 변경 화면으로 이동합니다.', function() {
+            openPasswordChangeModal();
+        });
+        return;
+    }
     if (!rsvState.selectedDate) {
         showAlert("입력 필요", "예약 날짜를 선택해주세요.");
         return;
@@ -1550,6 +1735,8 @@ function handleReservationSubmit() {
         (memo ? `<b>메모:</b> ${memo}<br>` : '') +
         `<br>관리자 확인 후 확정 안내 드리겠습니다.`
     );
+
+    if (typeof showToast === 'function') showToast('예약이 접수되었습니다', 'calendar-check');
 
     rsvResetForm();
 }
@@ -1902,22 +2089,36 @@ function skipTime() {
 }
 
 // showExtendBtn 값에 따라 시간 연장 버튼 숨김/표시 처리
-function showAlert(title, msg, showExtendBtn = false) {
+var _alertCloseCallback = null;
+
+function showAlert(title, msg, showExtendBtnOrCallback) {
     if(!els.modal) return;
     els.modalTitle.innerText = title;
     els.modalMsg.innerHTML = msg;
-    
-    if(showExtendBtn && els.btnAlertExtend) {
-        els.btnAlertExtend.classList.remove('hidden');
-    } else if(els.btnAlertExtend) {
-        els.btnAlertExtend.classList.add('hidden');
+
+    // 3번째 인자가 함수이면 닫기 시 콜백, boolean이면 연장 버튼 표시 여부
+    if (typeof showExtendBtnOrCallback === 'function') {
+        _alertCloseCallback = showExtendBtnOrCallback;
+        if(els.btnAlertExtend) els.btnAlertExtend.classList.add('hidden');
+    } else {
+        _alertCloseCallback = null;
+        if(showExtendBtnOrCallback && els.btnAlertExtend) {
+            els.btnAlertExtend.classList.remove('hidden');
+        } else if(els.btnAlertExtend) {
+            els.btnAlertExtend.classList.add('hidden');
+        }
     }
-    
+
     els.modal.classList.remove('hidden');
 }
 
 function closeModal() {
     if(els.modal) els.modal.classList.add('hidden');
+    if (_alertCloseCallback) {
+        var cb = _alertCloseCallback;
+        _alertCloseCallback = null;
+        setTimeout(cb, 200);
+    }
 }
 
 function handleChangePassword() {
@@ -1946,9 +2147,9 @@ function savePasswordChange() {
         return;
     }
 
-    const pwdRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+    const pwdRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
     if (!pwdRegex.test(newPwd)) {
-        showAlert('보안 규칙', '비밀번호는 8자 이상이며, 대문자와 숫자를 각각 1개 이상 포함해야 합니다.');
+        showAlert('보안 규칙', '비밀번호는 영문과 숫자를 포함하여 8자리 이상이어야 합니다.');
         return;
     }
 
@@ -1958,15 +2159,20 @@ function savePasswordChange() {
     }
 
     DB.user.password = newPwd;
-    
+    DB.user.passwordChanged = true;
+
     // DB.registeredUsers 업데이트 (임시 데이터 연동 유지)
     if(DB.registeredUsers) {
         const idx = DB.registeredUsers.findIndex(u => u.phone === DB.user.phone);
         if (idx !== -1) DB.registeredUsers[idx].password = newPwd;
     }
 
+    // 홈 화면 비밀번호 변경 알림 제거
+    var pwdNotice = document.getElementById('home-pwd-notice');
+    if (pwdNotice) pwdNotice.remove();
+
     closePasswordChangeModal();
-    showAlert('변경 완료', '비밀번호가 성공적으로 변경되었습니다.');
+    showAlert('변경 완료', '비밀번호가 성공적으로 변경되었습니다.<br>이제 결제 및 예약이 가능합니다.');
 }
 
 function openAccountEditModal() {
@@ -2036,38 +2242,84 @@ function saveAccountEdit() {
 }
 
 // 다음 우편번호 서비스 주소 검색 (팝업 방식)
+// 주의: file:// 프로토콜에서는 동작하지 않음. http:// 또는 https:// 환경에서만 사용 가능.
 function openAddressSearch(target) {
     new daum.Postcode({
         oncomplete: function(data) {
-            let fullAddress = data.roadAddress;
-            
+            var fullAddress = data.roadAddress;
             if (data.userSelectedType === 'J') {
                 fullAddress = data.jibunAddress;
             }
-            
             if (target === 'auth') {
                 document.getElementById('auth-address').value = fullAddress;
-                setTimeout(() => document.getElementById('auth-address-detail').focus(), 200);
+                setTimeout(function() { document.getElementById('auth-address-detail').focus(); }, 200);
             } else if (target === 'edit') {
                 document.getElementById('edit-acc-address').value = fullAddress;
-                setTimeout(() => document.getElementById('edit-acc-address-detail').focus(), 200);
+                setTimeout(function() { document.getElementById('edit-acc-address-detail').focus(); }, 200);
             }
         }
     }).open();
 }
 
+// 반려견 수정 모달 - 성별 선택 헬퍼
+function selectEditPetGender(value) {
+    var maleCard = document.getElementById('edit-pet-gender-male-card');
+    var femaleCard = document.getElementById('edit-pet-gender-female-card');
+    var maleInput = document.getElementById('edit-pet-gender-male');
+    var femaleInput = document.getElementById('edit-pet-gender-female');
+    // 초기화
+    [maleCard, femaleCard].forEach(function(c) {
+        c.style.borderColor = '#E5E7EB'; c.style.background = '#FAFAFA'; c.style.color = '#555';
+    });
+    maleInput.checked = false;
+    femaleInput.checked = false;
+    // 선택
+    if (value === 'male') {
+        maleInput.checked = true;
+        maleCard.style.borderColor = 'var(--primary)'; maleCard.style.background = '#E8F8F0'; maleCard.style.color = 'var(--primary)';
+    } else if (value === 'female') {
+        femaleInput.checked = true;
+        femaleCard.style.borderColor = 'var(--primary)'; femaleCard.style.background = '#E8F8F0'; femaleCard.style.color = 'var(--primary)';
+    }
+}
+
+// 반려견 수정 모달 - 체크박스 토글 헬퍼
+function toggleEditPetCheck(field) {
+    var cb = document.getElementById('edit-pet-' + field);
+    var card = document.getElementById('edit-pet-' + field + '-card');
+    cb.checked = !cb.checked;
+    if (cb.checked) {
+        card.style.borderColor = 'var(--primary)'; card.style.background = '#E8F8F0'; card.style.color = 'var(--primary)';
+    } else {
+        card.style.borderColor = '#E5E7EB'; card.style.background = '#FAFAFA'; card.style.color = '#555';
+    }
+}
+
+// 반려견 수정 모달 - 체크 카드 UI 초기화 헬퍼
+function setEditCheckCardState(cardId, cbId, checked) {
+    var card = document.getElementById(cardId);
+    var cb = document.getElementById(cbId);
+    if (!card || !cb) return;
+    cb.checked = !!checked;
+    if (checked) {
+        card.style.borderColor = 'var(--primary)'; card.style.background = '#E8F8F0'; card.style.color = 'var(--primary)';
+    } else {
+        card.style.borderColor = '#E5E7EB'; card.style.background = '#FAFAFA'; card.style.color = '#555';
+    }
+}
+
 function openPetEditModal(idx) {
     const pet = DB.pets[idx];
     if(!pet) return;
-    
+
     document.getElementById('edit-pet-idx').value = idx;
     document.getElementById('edit-pet-name').value = pet.name || '';
-    
+
     // Type/breed
     const breedVal = pet.type || pet.breed || '';
     document.getElementById('edit-pet-breed').value = breedVal;
     document.getElementById('breed-input-edit').value = breedVal;
-    
+
     // Age parsing (만약 "3살 2개월" 문자열인 경우)
     let y = '', m = '';
     if(pet.age && typeof pet.age === 'string') {
@@ -2078,7 +2330,7 @@ function openPetEditModal(idx) {
     }
     document.getElementById('edit-pet-year').value = y;
     document.getElementById('edit-pet-month').value = m;
-    
+
     // Weight parsing ("4kg" 문자열)
     let w = '';
     if(pet.weight && typeof pet.weight === 'string') {
@@ -2087,7 +2339,14 @@ function openPetEditModal(idx) {
         w = pet.weight;
     }
     document.getElementById('edit-pet-weight').value = w;
-    
+
+    // 성별 UI 초기화
+    selectEditPetGender(pet.gender || '');
+
+    // 중성화 / 예방접종 UI 초기화
+    setEditCheckCardState('edit-pet-neutered-card', 'edit-pet-neutered', pet.neutered);
+    setEditCheckCardState('edit-pet-vaccinated-card', 'edit-pet-vaccinated', pet.vaccinated);
+
     document.getElementById('pet-edit-modal').classList.remove('hidden');
 }
 
@@ -2110,15 +2369,159 @@ function savePetEdit() {
     
     if(name) pet.name = name;
     if(type) pet.type = type;
-    
+
     let ageParts = [];
     if(y) ageParts.push(`${y}살`);
     if(m) ageParts.push(`${m}개월`);
     if(ageParts.length > 0) pet.age = ageParts.join(' ');
-    
+
     if(w) pet.weight = `${w}kg`;
-    
+
+    // 성별
+    var genderMale = document.getElementById('edit-pet-gender-male');
+    var genderFemale = document.getElementById('edit-pet-gender-female');
+    if (genderMale && genderMale.checked) pet.gender = 'male';
+    else if (genderFemale && genderFemale.checked) pet.gender = 'female';
+
+    // 중성화 / 예방접종
+    var neuteredCb = document.getElementById('edit-pet-neutered');
+    var vaccinatedCb = document.getElementById('edit-pet-vaccinated');
+    if (neuteredCb) pet.neutered = neuteredCb.checked;
+    if (vaccinatedCb) pet.vaccinated = vaccinatedCb.checked;
+
     closePetEditModal();
     updateProfileUI(); // 화면 갱신
     showAlert('반려견 정보', '정보가 성공적으로 수정되었습니다.');
 }
+
+// ===== Frontend Pattern Enhancements =====
+
+// --- Staggered Entry Animation (IntersectionObserver) ---
+(function initStaggerAnimations() {
+    var observer = new IntersectionObserver(function(entries) {
+        var delay = 0;
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                var el = entry.target;
+                setTimeout(function() {
+                    el.classList.add('visible');
+                }, delay);
+                delay += 80;
+                observer.unobserve(el);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+
+    // 초기 관찰 대상은 로그인 후 설정 (DOM이 보여야 작동)
+    window._staggerObserver = observer;
+})();
+
+function observeStaggerItems() {
+    var items = document.querySelectorAll('.stagger-item:not(.visible)');
+    items.forEach(function(item) {
+        window._staggerObserver.observe(item);
+    });
+    // 섹션 타이틀 애니메이션도 트리거
+    var titles = document.querySelectorAll('.section-title-animated:not(.visible)');
+    titles.forEach(function(title) {
+        window._staggerObserver.observe(title);
+    });
+}
+
+// --- Ripple Effect ---
+document.addEventListener('click', function(e) {
+    var host = e.target.closest('.ripple-host');
+    if (!host) return;
+    var rect = host.getBoundingClientRect();
+    var size = Math.max(rect.width, rect.height) * 2;
+    var circle = document.createElement('span');
+    circle.className = 'ripple-circle';
+    circle.style.width = circle.style.height = size + 'px';
+    circle.style.left = (e.clientX - rect.left - size / 2) + 'px';
+    circle.style.top = (e.clientY - rect.top - size / 2) + 'px';
+    host.appendChild(circle);
+    setTimeout(function() { circle.remove(); }, 500);
+});
+
+// --- Toast Notification System ---
+var _toastTimer = null;
+function showToast(message, icon) {
+    var toast = document.getElementById('toast-container');
+    if (!toast) return;
+    toast.innerHTML = (icon ? '<i class="ph-fill ph-' + icon + '"></i> ' : '') + message;
+    toast.classList.add('show');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(function() {
+        toast.classList.remove('show');
+    }, 2800);
+}
+
+// --- Scroll Progress Indicator ---
+(function initScrollProgress() {
+    var homeView = document.getElementById('view-home');
+    if (!homeView) return;
+    homeView.addEventListener('scroll', function() {
+        var bar = document.getElementById('home-scroll-progress');
+        if (!bar) return;
+        var scrollTop = homeView.scrollTop;
+        var scrollHeight = homeView.scrollHeight - homeView.clientHeight;
+        var pct = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+        bar.style.width = pct + '%';
+    });
+})();
+
+// --- Banner Parallax on Scroll ---
+(function initBannerParallax() {
+    var homeView = document.getElementById('view-home');
+    var banner = homeView ? homeView.querySelector('.home-top-banner') : null;
+    if (!homeView || !banner) return;
+    homeView.addEventListener('scroll', function() {
+        var scrollTop = homeView.scrollTop;
+        if (scrollTop < 300) {
+            banner.style.transform = 'translateY(' + (scrollTop * 0.35) + 'px)';
+            banner.style.opacity = Math.max(0.6, 1 - scrollTop / 500);
+        }
+    });
+})();
+
+// --- Keyboard Navigation for Nav & Action Cards ---
+document.addEventListener('keydown', function(e) {
+    var el = document.activeElement;
+    if (!el) return;
+
+    // Enter/Space on role="button" or role="tab"
+    if ((e.key === 'Enter' || e.key === ' ') && (el.getAttribute('role') === 'button' || el.getAttribute('role') === 'tab')) {
+        e.preventDefault();
+        el.click();
+    }
+
+    // Arrow keys for nav tabs
+    if (el.classList.contains('nav-item') && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+        e.preventDefault();
+        var navItems = Array.from(document.querySelectorAll('.nav-item'));
+        var idx = navItems.indexOf(el);
+        if (e.key === 'ArrowRight') idx = (idx + 1) % navItems.length;
+        else idx = (idx - 1 + navItems.length) % navItems.length;
+        navItems[idx].focus();
+    }
+});
+
+// --- ARIA state update on nav switch ---
+var _origSwitchView = switchView;
+switchView = function(viewId) {
+    _origSwitchView(viewId);
+    // Update ARIA selected states on nav
+    document.querySelectorAll('.nav-item').forEach(function(nav) {
+        var isActive = nav.classList.contains('active');
+        nav.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+    // Trigger stagger animations for newly visible view
+    setTimeout(observeStaggerItems, 50);
+};
+
+// --- Initial stagger observe after login ---
+var _origLoginSuccess = loginSuccess;
+loginSuccess = function() {
+    _origLoginSuccess.apply(this, arguments);
+    setTimeout(observeStaggerItems, 200);
+};
