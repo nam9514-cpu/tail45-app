@@ -786,6 +786,12 @@ function loginSuccess() {
     if(els.homePointDisplay && DB.user) {
         els.homePointDisplay.innerText = `${(DB.user.pointBalance || 0).toLocaleString()} P`;
     }
+
+    // 교환 가능 포인트 표기 업데이트
+    const exchPtsEl = document.getElementById('reward-exchangeable-points');
+    if(exchPtsEl && DB.user) {
+        exchPtsEl.innerText = (DB.user.pointBalance || 0).toLocaleString();
+    }
     
     // 포인트 내역 렌더링 초기화
     currentHistoryPage = 1;
