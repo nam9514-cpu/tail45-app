@@ -468,6 +468,9 @@ function toggleAuthMode() {
         authTitle.innerText = '로그인';
         authSubtitle.innerText = '테일45에 오신 것을 환영합니다';
         if(stepDots) stepDots.style.display = 'none';
+        // 혹시 남아있을 소셜 가입 플래그 정리
+        pendingSocialProvider = null;
+        delete DB._socialProfile;
     } else {
         authMode = 'signup';
         loginForm.classList.add('hidden');
@@ -535,6 +538,16 @@ function signupNextStep(currentStep) {
 }
 
 function signupPrevStep(currentStep) {
+    // 소셜 가입 중에는 Step 1(이메일/비번)을 건너뛰었으므로
+    // Step 2에서 뒤로 누르면 로그인 화면으로 이탈
+    if (pendingSocialProvider && currentStep === 2) {
+        pendingSocialProvider = null;
+        delete DB._socialProfile;
+        const nameField = document.getElementById('auth-name');
+        if (nameField) nameField.value = '';
+        toggleAuthMode(); // 로그인 화면으로
+        return;
+    }
     if(currentStep > 1) goToSignupStep(currentStep - 1);
 }
 
@@ -545,28 +558,42 @@ function handleSignupComplete() {
         return;
     }
 
-    const email = document.getElementById('auth-email').value.trim();
-    const pwd = document.getElementById('auth-password').value.trim();
+    const isSocial = !!pendingSocialProvider;
+    const socialProfile = DB._socialProfile || {};
+
+    // 이메일/비밀번호는 이메일 가입 시에만 수집
+    const email = isSocial
+        ? (socialProfile.email || `${pendingSocialProvider}_${Date.now()}@tail45.social`)
+        : document.getElementById('auth-email').value.trim();
+    const pwd = isSocial ? '' : document.getElementById('auth-password').value.trim();
+
     const name = document.getElementById('auth-name').value.trim();
     const phone = (document.getElementById('auth-phone').value.trim()).replace(/[^0-9]/g, '');
     const addressBase = document.getElementById('auth-address').value.trim();
     const addressDetail = document.getElementById('auth-address-detail').value.trim();
     const address = addressDetail ? `${addressBase} ${addressDetail}` : addressBase;
 
+    if (!name) {
+        showAlert('입력 오류', '이름을 입력해주세요.');
+        return;
+    }
     if (!addressBase) {
         showAlert('입력 오류', '주소를 검색하여 입력해주세요.');
         return;
     }
 
-    // 중복 가입 체크 (email)
-    const exists = DB.registeredUsers.find(u => u.email === email);
-    if(exists) {
-        showAlert('가입 안내', '이미 사용 중인 이메일입니다.');
-        return;
+    // 중복 가입 체크 (이메일 가입만)
+    if (!isSocial) {
+        const exists = DB.registeredUsers.find(u => u.email === email);
+        if(exists) {
+            showAlert('가입 안내', '이미 사용 중인 이메일입니다.');
+            return;
+        }
     }
 
+    const provider = isSocial ? pendingSocialProvider : 'email';
     const memberCode = generateMemberCode();
-    const newUser = { phone, password: pwd, name, email, address, provider: 'email', code: memberCode };
+    const newUser = { phone, password: pwd, name, email, address, provider, code: memberCode };
     DB.registeredUsers.push(newUser);
 
     // DB.user 세션 업데이트
@@ -574,8 +601,9 @@ function handleSignupComplete() {
     DB.user.phone = phone || '미등록';
     DB.user.email = email;
     DB.user.address = address || '미등록';
-    DB.user.provider = 'email';
+    DB.user.provider = provider;
     DB.user.code = memberCode;
+    DB.user.passwordChanged = true;
 
     // ── 기존 고객 데이터 자동 연동 (전화번호 + 이름 매칭) ──
     let legacyLinked = false;
@@ -638,12 +666,29 @@ function handleSignupComplete() {
         DB.pets = newPets;
     }
 
-    if (legacyLinked) {
-        showAlert('🎉 가입 완료! (기존 고객 연동)', nameWithHonorific(name) + ', 환영합니다!<br>이전 고객 정보와 반려견 <b>' + DB.pets.length + '마리</b>의 데이터가 자동으로 연동되었습니다.<br>로그인하여 확인하세요.');
+    const wasSocial = isSocial;
+    const socialName = wasSocial ? (pendingSocialProvider === 'kakao' ? '카카오' : '네이버') : '';
+
+    // 소셜 가입 플래그 정리
+    pendingSocialProvider = null;
+    delete DB._socialProfile;
+
+    if (wasSocial) {
+        // 소셜 가입자는 비밀번호가 없으므로 즉시 로그인 처리
+        if (legacyLinked) {
+            showAlert(`🎉 ${socialName} 가입 완료! (기존 고객 연동)`, nameWithHonorific(name) + ', 환영합니다!<br>이전 고객 정보와 반려견 <b>' + DB.pets.length + '마리</b>의 데이터가 자동으로 연동되었습니다.');
+        } else {
+            showAlert(`🎉 ${socialName} 가입 완료!`, nameWithHonorific(name) + ', 테일45 회원이 되신 것을 환영합니다!');
+        }
+        loginSuccess();
     } else {
-        showAlert('🎉 가입 완료!', nameWithHonorific(name) + ', 테일45 회원이 되신 것을 환영합니다!<br>로그인하여 시작하세요.');
+        if (legacyLinked) {
+            showAlert('🎉 가입 완료! (기존 고객 연동)', nameWithHonorific(name) + ', 환영합니다!<br>이전 고객 정보와 반려견 <b>' + DB.pets.length + '마리</b>의 데이터가 자동으로 연동되었습니다.<br>로그인하여 확인하세요.');
+        } else {
+            showAlert('🎉 가입 완료!', nameWithHonorific(name) + ', 테일45 회원이 되신 것을 환영합니다!<br>로그인하여 시작하세요.');
+        }
+        toggleAuthMode(); // 로그인 화면으로 전환
     }
-    toggleAuthMode(); // 로그인 화면으로 전환
 }
 
 // 생년월일로 나이 계산 유틸 함수
@@ -660,18 +705,50 @@ function calcDogAge(birthStr) {
     }
 }
 
+// 소셜 로그인 진행 중 플래그 (회원가입 플로우가 소셜 기반인지 판별)
+let pendingSocialProvider = null;
+
 function handleSocialLogin(provider) {
     const providerName = provider === 'kakao' ? '카카오' : '네이버';
-    // MOCK: 간편 로그인 시 자동 로그인 처리 흉내
-    DB.user.name = providerName + ' 유저';
-    DB.user.phone = '01000000000';
-    DB.user.email = '';
-    DB.user.address = '간편가입 주소 미등록';
-    DB.user.provider = provider;
-    DB.user.passwordChanged = true;
-    DB.pets = [];
-    loginSuccess();
-    showAlert('간편 로그인 성공', `${providerName} 계정으로 로그인했습니다.<br>(개발용 모의 접속입니다.)`);
+
+    // MOCK: 실제로는 카카오/네이버 SDK를 통해 이름·이메일을 받아옴
+    // 개발용으로 가상의 소셜 프로필을 즉시 반환
+    const mockSocialProfile = {
+        name: providerName + ' 유저',
+        email: `${provider}_user_${Date.now()}@tail45.social`
+    };
+
+    // 소셜 가입 플래그 설정
+    pendingSocialProvider = provider;
+
+    // 회원가입 플로우 활성화
+    const signupFlow = document.getElementById('auth-signup-flow');
+    const loginForm = document.getElementById('auth-login-form');
+    const authTitle = document.getElementById('auth-title');
+    const authSubtitle = document.getElementById('auth-subtitle');
+    const stepDots = document.getElementById('step-dots');
+
+    authMode = 'signup';
+    if (signupFlow) signupFlow.classList.remove('hidden');
+    if (loginForm) loginForm.classList.add('hidden');
+    if (authTitle) authTitle.innerText = `${providerName} 간편 가입`;
+    if (authSubtitle) authSubtitle.innerText = '추가 정보를 입력해 주세요';
+    if (stepDots) stepDots.style.display = 'flex';
+
+    // 스텝 1(이메일/비밀번호)은 건너뛰고 스텝 2(추가 정보)부터 시작
+    goToSignupStep(2);
+
+    // 소셜에서 받아온 이름 자동 채우기
+    const nameField = document.getElementById('auth-name');
+    if (nameField) nameField.value = mockSocialProfile.name;
+
+    // 소셜 프로필 임시 보관 (handleSignupComplete에서 사용)
+    DB._socialProfile = mockSocialProfile;
+
+    // 부드러운 안내
+    if (typeof showToast === 'function') {
+        showToast(`${providerName} 계정 연동 완료`, 'check-circle');
+    }
 }
 
 function handleLogin() {
