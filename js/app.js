@@ -349,9 +349,10 @@ function initElements() {
     els.homeTimerCountdown = document.getElementById('home-timer-countdown');
     els.homePointDisplay = document.getElementById('home-point-display');
     
-    els.btnMockScan = document.getElementById('btn-mock-scan');
-    els.btnMockExit = document.getElementById('btn-mock-exit');
-    els.btnMockFF = document.getElementById('btn-mock-fastforward');
+    // 마스터 시뮬레이션 제어 버튼은 로그인 시 동적으로 주입됨 (보안 이유)
+    els.btnMockScan = null;
+    els.btnMockExit = null;
+    els.btnMockFF = null;
     els.activeTimerView = document.getElementById('active-timer-view');
     els.noTimerMsg = document.getElementById('no-timer-msg');
     els.timerDisplay = document.getElementById('timer-display');
@@ -413,25 +414,12 @@ function bindEvents() {
         const inputField = document.getElementById(inputId);
         if(toggleBtn && inputField) {
             toggleBtn.addEventListener('click', () => {
-                if(inputField.type === 'text') {
-                    // CSS로 가린 필드 (로그인 비밀번호 - 한국어 IME 지원)
-                    const isVisible = inputField.style.webkitTextSecurity === 'none';
-                    if(isVisible) {
-                        inputField.style.webkitTextSecurity = 'disc';
-                        toggleBtn.className = toggleBtn.className.replace('ph-eye-slash', 'ph-eye');
-                    } else {
-                        inputField.style.webkitTextSecurity = 'none';
-                        toggleBtn.className = toggleBtn.className.replace('ph-eye', 'ph-eye-slash');
-                    }
+                if(inputField.type === 'password') {
+                    inputField.type = 'text';
+                    toggleBtn.className = toggleBtn.className.replace('ph-eye', 'ph-eye-slash');
                 } else {
-                    // 일반 password 타입 (회원가입 비밀번호 필드)
-                    if(inputField.type === 'password') {
-                        inputField.type = 'text';
-                        toggleBtn.className = toggleBtn.className.replace('ph-eye', 'ph-eye-slash');
-                    } else {
-                        inputField.type = 'password';
-                        toggleBtn.className = toggleBtn.className.replace('ph-eye-slash', 'ph-eye');
-                    }
+                    inputField.type = 'password';
+                    toggleBtn.className = toggleBtn.className.replace('ph-eye-slash', 'ph-eye');
                 }
             });
         }
@@ -445,9 +433,7 @@ function bindEvents() {
     setupPwdToggle('toggle-pwd-new', 'change-pwd-new');
     setupPwdToggle('toggle-pwd-confirm', 'change-pwd-confirm');
 
-    if(els.btnMockScan) els.btnMockScan.addEventListener('click', handleMockScan);
-    if(els.btnMockExit) els.btnMockExit.addEventListener('click', handleMockExit);
-    if(els.btnMockFF) els.btnMockFF.addEventListener('click', skipTime);
+    // 마스터 제어 버튼 이벤트는 injectMockControls()에서 주입 시 함께 바인딩
 }
 
 
@@ -751,6 +737,28 @@ function handleSocialLogin(provider) {
     }
 }
 
+// 마스터 로그인 시 시뮬레이션 제어 패널을 DOM에 동적으로 주입
+// 일반 사용자 세션에는 HTML에 이 마크업이 존재하지 않아 DevTools로도 볼 수 없음
+function injectMockControls() {
+    const slot = document.getElementById('mock-controls-slot');
+    if (!slot || slot.dataset.injected === '1') return;
+    slot.dataset.injected = '1';
+    slot.innerHTML = `
+        <div class="mock-controls mt-4 admin-only">
+            <p class="text-xs font-bold text-center mb-1 bg-light border-radius p-1" style="color: var(--danger);">[마스터 시뮬레이션 제어 패널]</p>
+            <button id="btn-mock-scan" class="secondary-btn full-width text-sm mb-1 bg-white" style="border-color: var(--danger); color: var(--danger);">신호 전송: 입장 리더기 QR 스캔 완료</button>
+            <button id="btn-mock-exit" class="secondary-btn full-width text-sm mb-1 bg-white" style="border-color: var(--danger); color: var(--danger);">신호 전송: 퇴장 리더기 QR 스캔 완료</button>
+            <button id="btn-mock-fastforward" class="secondary-btn full-width text-sm bg-white" style="border-color: var(--danger); color: var(--danger);">시간 단축: 남은 시간 30초 강제 진입</button>
+        </div>
+    `;
+    els.btnMockScan = document.getElementById('btn-mock-scan');
+    els.btnMockExit = document.getElementById('btn-mock-exit');
+    els.btnMockFF = document.getElementById('btn-mock-fastforward');
+    if (els.btnMockScan) els.btnMockScan.addEventListener('click', handleMockScan);
+    if (els.btnMockExit) els.btnMockExit.addEventListener('click', handleMockExit);
+    if (els.btnMockFF) els.btnMockFF.addEventListener('click', skipTime);
+}
+
 function handleLogin() {
     const rawPhone = document.getElementById('login-phone').value.trim();
     const pwd = document.getElementById('login-password').value.trim();
@@ -762,6 +770,7 @@ function handleLogin() {
         DB.user.password = '0000';
         DB.user.code = 'm00000000master00000';
         DB.user.pointBalance = 9999999;
+        injectMockControls();
         document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
         loginSuccess();
         showAlert('마스터 모드 활성화 👑', 'Tail45 앱 마스터 계정으로 로그인했습니다.<br>이제 모든 시뮬레이션 제어 패널을 사용할 수 있습니다.');

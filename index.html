@@ -49,7 +49,7 @@
                             <label>비밀번호 <span class="text-danger">*</span></label>
                             <div class="input-wrapper">
                                 <i class="ph ph-lock"></i>
-                                <input type="text" id="auth-password" placeholder="비밀번호" autocomplete="off" style="-webkit-text-security: disc;" autocorrect="off" autocapitalize="off" spellcheck="false">
+                                <input type="password" id="auth-password" placeholder="비밀번호" autocomplete="new-password">
                                 <i class="ph ph-eye pointer action-icon text-gray" id="auth-toggle-pwd"></i>
                             </div>
                             <p class="input-hint">비밀번호는 영문 8자 이상, 숫자 1개를 포함해야 합니다</p>
@@ -58,7 +58,7 @@
                             <label>비밀번호 확인 <span class="text-danger">*</span></label>
                             <div class="input-wrapper">
                                 <i class="ph ph-lock"></i>
-                                <input type="text" id="auth-password-confirm" placeholder="한 번 더 입력" autocomplete="off" style="-webkit-text-security: disc;" autocorrect="off" autocapitalize="off" spellcheck="false">
+                                <input type="password" id="auth-password-confirm" placeholder="한 번 더 입력" autocomplete="new-password">
                                 <i class="ph ph-eye pointer action-icon text-gray" id="auth-toggle-pwd-confirm"></i>
                             </div>
                         </div>
@@ -148,7 +148,7 @@
                             <label>비밀번호 <span class="text-danger">*</span></label>
                             <div class="input-wrapper">
                                 <i class="ph ph-lock"></i>
-                                <input type="text" id="login-password" placeholder="비밀번호 입력" autocomplete="off" style="-webkit-text-security: disc;" autocorrect="off" autocapitalize="off" spellcheck="false">
+                                <input type="password" id="login-password" placeholder="비밀번호 입력" autocomplete="current-password">
                                 <i class="ph ph-eye pointer action-icon text-gray" id="login-toggle-pwd"></i>
                             </div>
                         </div>
@@ -591,13 +591,8 @@
                     </div>
                 </div>
                 
-                <!-- MOCK Controls: Hidden unless master logged in -->
-                <div class="mock-controls mt-4 admin-only hidden">
-                    <p class="text-xs font-bold text-center mb-1 bg-light border-radius p-1" style="color: var(--danger);">[마스터 시뮬레이션 제어 패널]</p>
-                    <button id="btn-mock-scan" class="secondary-btn full-width text-sm mb-1 bg-white" style="border-color: var(--danger); color: var(--danger);">신호 전송: 입장 리더기 QR 스캔 완료</button>
-                    <button id="btn-mock-exit" class="secondary-btn full-width text-sm mb-1 bg-white" style="border-color: var(--danger); color: var(--danger);">신호 전송: 퇴장 리더기 QR 스캔 완료</button>
-                    <button id="btn-mock-fastforward" class="secondary-btn full-width text-sm bg-white" style="border-color: var(--danger); color: var(--danger);">시간 단축: 남은 시간 30초 강제 진입</button>
-                </div>
+                <!-- 마스터 시뮬레이션 제어 패널은 마스터 로그인 시 JS에서 동적으로 주입됨 -->
+                <div id="mock-controls-slot"></div>
             </section>
 
             <!-- Rewards View -->
@@ -1065,7 +1060,7 @@
                     <label>현재 비밀번호 (또는 성함)</label>
                     <div class="input-wrapper" style="background:#f8f9fa;">
                         <i class="ph ph-lock"></i>
-                        <input type="text" id="change-pwd-current" placeholder="현재 비밀번호 입력" autocomplete="off" style="-webkit-text-security: disc;" autocorrect="off" autocapitalize="off" spellcheck="false">
+                        <input type="password" id="change-pwd-current" placeholder="현재 비밀번호 입력" autocomplete="current-password">
                         <i class="ph ph-eye pointer action-icon text-gray" id="toggle-pwd-current"></i>
                     </div>
                 </div>
@@ -1074,7 +1069,7 @@
                     <label>새 비밀번호</label>
                     <div class="input-wrapper" style="background:#f8f9fa;">
                         <i class="ph ph-lock-key"></i>
-                        <input type="text" id="change-pwd-new" placeholder="새 비밀번호 입력" autocomplete="off" style="-webkit-text-security: disc;" autocorrect="off" autocapitalize="off" spellcheck="false">
+                        <input type="password" id="change-pwd-new" placeholder="새 비밀번호 입력" autocomplete="new-password">
                         <i class="ph ph-eye pointer action-icon text-gray" id="toggle-pwd-new"></i>
                     </div>
                     <p class="input-hint">비밀번호는 영문 8자 이상, 숫자 1개를 포함해야 합니다</p>
@@ -1084,7 +1079,7 @@
                     <label>새 비밀번호 확인</label>
                     <div class="input-wrapper" style="background:#f8f9fa;">
                         <i class="ph ph-check-circle"></i>
-                        <input type="text" id="change-pwd-confirm" placeholder="새 비밀번호 다시 입력" autocomplete="off" style="-webkit-text-security: disc;" autocorrect="off" autocapitalize="off" spellcheck="false">
+                        <input type="password" id="change-pwd-confirm" placeholder="새 비밀번호 다시 입력" autocomplete="new-password">
                         <i class="ph ph-eye pointer action-icon text-gray" id="toggle-pwd-confirm"></i>
                     </div>
                 </div>
