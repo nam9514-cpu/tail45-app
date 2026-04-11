@@ -544,6 +544,12 @@ function signupPrevStep(currentStep) {
 }
 
 function handleSignupComplete() {
+    const privacyCheck = document.getElementById('signup-privacy-check');
+    if (!privacyCheck || !privacyCheck.checked) {
+        showAlert('약관 동의 필요', '개인정보 처리방침에 동의해주세요.');
+        return;
+    }
+
     const email = document.getElementById('auth-email').value.trim();
     const pwd = document.getElementById('auth-password').value.trim();
     const name = document.getElementById('auth-name').value.trim();
@@ -2531,3 +2537,40 @@ loginSuccess = function() {
     _origLoginSuccess.apply(this, arguments);
     setTimeout(observeStaggerItems, 200);
 };
+
+// ===== 개인정보 처리방침 동의 =====
+function toggleSignupSubmitBtn() {
+    const checkbox = document.getElementById('signup-privacy-check');
+    const btn = document.getElementById('signup-submit-btn');
+    if (!checkbox || !btn) return;
+    if (checkbox.checked) {
+        btn.classList.remove('disabled');
+        btn.disabled = false;
+    } else {
+        btn.classList.add('disabled');
+        btn.disabled = true;
+    }
+}
+
+function openPrivacyModal() {
+    const modal = document.getElementById('privacy-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        const body = document.getElementById('privacy-modal-body');
+        if (body) body.scrollTop = 0;
+    }
+}
+
+function closePrivacyModal() {
+    const modal = document.getElementById('privacy-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function agreePrivacyFromModal() {
+    const checkbox = document.getElementById('signup-privacy-check');
+    if (checkbox) {
+        checkbox.checked = true;
+        toggleSignupSubmitBtn();
+    }
+    closePrivacyModal();
+}

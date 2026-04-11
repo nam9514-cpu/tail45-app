@@ -954,3 +954,42 @@ button {
 .section-title-animated::after {
     display: none;
 }
+
+/* ===== Privacy Policy Modal ===== */
+#privacy-modal-body h4.privacy-article {
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin: 22px 0 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--primary-light);
+    letter-spacing: -0.2px;
+}
+#privacy-modal-body h4.privacy-article:first-of-type {
+    margin-top: 8px;
+}
+#privacy-modal-body p {
+    margin: 0 0 12px;
+    color: #3A3A3C;
+    word-break: keep-all;
+}
+#privacy-modal-body p b {
+    color: #1C1C1E;
+    font-weight: 700;
+}
+#privacy-modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+#privacy-modal-body::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.15);
+    border-radius: 3px;
+}
+
+/* Privacy agreement box inside signup */
+.privacy-agree-box {
+    transition: all 0.2s ease;
+}
+.privacy-agree-box:has(input:checked) {
+    background: var(--primary-light) !important;
+    border-color: var(--primary) !important;
+}
