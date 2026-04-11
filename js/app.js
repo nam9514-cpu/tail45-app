@@ -525,14 +525,9 @@ function signupNextStep(currentStep) {
         goToSignupStep(2);
     } else if(currentStep === 2) {
         const name = document.getElementById('auth-name').value.trim();
-        const privacyChecked = document.getElementById('auth-privacy-check').checked;
 
         if(!name) {
             showAlert('입력 오류', '이름은 필수 입력 항목입니다.');
-            return;
-        }
-        if(!privacyChecked) {
-            showAlert('동의 필요', '개인정보처리방침에 동의해주세요.');
             return;
         }
         goToSignupStep(3);
