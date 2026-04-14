@@ -312,7 +312,19 @@ document.addEventListener('DOMContentLoaded', () => {
     initDaypassCalendar();
     setInterval(checkDaypassExpiry, 60000);
     initYardStatus();
+    injectCopyrightToAllViews();
 });
+
+function injectCopyrightToAllViews() {
+    const text = '© 2023 PETSCOM Inc. All rights reserved.';
+    document.querySelectorAll('section.view').forEach((view) => {
+        if (view.querySelector(':scope > .app-copyright')) return;
+        const p = document.createElement('p');
+        p.className = 'app-copyright';
+        p.textContent = text;
+        view.appendChild(p);
+    });
+}
 
 function initElements() {
     els.mainContent = document.getElementById('main-content');
@@ -387,7 +399,7 @@ function bindEvents() {
 
     if(els.sosBtn) {
         els.sosBtn.addEventListener('click', () => {
-            window.location.href = 'tel:0507-1387-4602';
+            window.location.href = 'tel:031-287-4600';
         });
     }
 
@@ -1761,7 +1773,7 @@ function selectReservationDuration(el) {
 function handleReservationCall() {
     showAlert("전화 문의",
         `4시간 이상 대관은 전화로 문의해주세요.<br><br>` +
-        `<b style="font-size: 1.1rem;">📞 031-XXX-XXXX</b><br><br>` +
+        `<b style="font-size: 1.1rem;">📞 031-287-4600</b><br><br>` +
         `<span class="text-sm text-gray">운영시간: 평일 10:00 ~ 18:00</span>`
     );
 }
@@ -2619,12 +2631,24 @@ loginSuccess = function() {
     setTimeout(observeStaggerItems, 200);
 };
 
-// ===== 개인정보 처리방침 동의 =====
+// ===== 약관 동의 (이용약관 / 개인정보 처리방침 / 환불 규정 / 안전수칙) =====
+const SIGNUP_TERM_IDS = [
+    'signup-terms-check',
+    'signup-privacy-check',
+    'signup-refund-check',
+    'signup-safety-check'
+];
+
 function toggleSignupSubmitBtn() {
-    const checkbox = document.getElementById('signup-privacy-check');
     const btn = document.getElementById('signup-submit-btn');
-    if (!checkbox || !btn) return;
-    if (checkbox.checked) {
+    if (!btn) return;
+    const allChecked = SIGNUP_TERM_IDS.every((id) => {
+        const cb = document.getElementById(id);
+        return cb && cb.checked;
+    });
+    const allBox = document.getElementById('signup-all-check');
+    if (allBox) allBox.checked = allChecked;
+    if (allChecked) {
         btn.classList.remove('disabled');
         btn.disabled = false;
     } else {
@@ -2633,25 +2657,136 @@ function toggleSignupSubmitBtn() {
     }
 }
 
-function openPrivacyModal() {
-    const modal = document.getElementById('privacy-modal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        const body = document.getElementById('privacy-modal-body');
-        if (body) body.scrollTop = 0;
-    }
+function toggleAllSignupTerms() {
+    const allBox = document.getElementById('signup-all-check');
+    if (!allBox) return;
+    SIGNUP_TERM_IDS.forEach((id) => {
+        const cb = document.getElementById(id);
+        if (cb) cb.checked = allBox.checked;
+    });
+    toggleSignupSubmitBtn();
 }
 
-function closePrivacyModal() {
-    const modal = document.getElementById('privacy-modal');
+function openModalById(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    const body = modal.querySelector('[id$="-modal-body"]');
+    if (body) body.scrollTop = 0;
+}
+
+function closeModalById(modalId) {
+    const modal = document.getElementById(modalId);
     if (modal) modal.classList.add('hidden');
 }
 
-function agreePrivacyFromModal() {
-    const checkbox = document.getElementById('signup-privacy-check');
-    if (checkbox) {
-        checkbox.checked = true;
+function agreeAndClose(modalId, checkboxId) {
+    const cb = document.getElementById(checkboxId);
+    if (cb) {
+        cb.checked = true;
         toggleSignupSubmitBtn();
     }
-    closePrivacyModal();
+    closeModalById(modalId);
+}
+
+function openPrivacyModal() { openModalById('privacy-modal'); }
+function closePrivacyModal() { closeModalById('privacy-modal'); }
+function agreePrivacyFromModal() { agreeAndClose('privacy-modal', 'signup-privacy-check'); }
+
+function openTermsModal() { openModalById('terms-modal'); }
+function closeTermsModal() { closeModalById('terms-modal'); }
+function agreeTermsFromModal() { agreeAndClose('terms-modal', 'signup-terms-check'); }
+
+function openRefundModal() { openModalById('refund-modal'); }
+function closeRefundModal() { closeModalById('refund-modal'); }
+function agreeRefundFromModal() { agreeAndClose('refund-modal', 'signup-refund-check'); }
+
+function openSafetyModal() { openModalById('safety-modal'); }
+function closeSafetyModal() { closeModalById('safety-modal'); }
+function agreeSafetyFromModal() { agreeAndClose('safety-modal', 'signup-safety-check'); }
+
+const PURCHASE_GUIDES = {
+    daypass: {
+        title: '운동장 이용 안내',
+        items: [
+            '<b>반려견 외 다른 반려동물</b>의 출입은<br>금지되어 있습니다.',
+            '안전상의 이유로 <b>5대 맹견 및<br>자체 지정한 일부 견종</b>의 출입을 제한합니다.',
+            '안전상의 이유로 <b>노키즈 존</b>으로 운영하고 있습니다.<br>(만 10세 이상부터 입장 가능, 프라이빗 존 제외)',
+            '모든 공간은 <b>금연구역</b>입니다.<br>지정된 흡연구역에서만 흡연 가능합니다.',
+            '<b>외부 음식은 반입이 금지</b>되어 있습니다.',
+            '체중별로 나누어진 <b>4곳의 운동장</b> 중<br>내 반려견의 체중에 맞는 운동장을<br>이용해 주시기 바랍니다.',
+            '운동장을 제외한 전 구역에서<br><b>반려견 리드줄은 필수 착용</b>입니다.<br>(실내 공간 포함)',
+            '운동장 내에는 <b>보호자 음료만 반입 가능</b>합니다.<br>식사는 운동장을 제외한 야외 테이블 또는<br>실내 공간을 이용해 주시기 바랍니다.',
+            '내 반려견의 <b>배변은 보호자께서<br>직접 치워주셔야 합니다.</b>',
+            '물건을 <b>분실하지 않도록 주의</b>해 주시기 바랍니다.'
+        ]
+    },
+    reservation: {
+        title: '대관 이용 안내',
+        items: [
+            '대관 이용 시 <b>반려견 2마리까지 무료 입장</b> 가능하며,<br>3마리부터는 1마리당 추가 입장료가 발생합니다.<br>추가 반려견이 있는 경우 <b>메인홀 예약 후 안내</b>를 받아주세요.',
+            '숲속형 <b>A동</b>은 자연을 그대로 활용한 공간으로,<br>소나무 송진이 반려견의 털에 묻을 수 있습니다.<br>소나무 아래에 다가가지 않도록 주의 부탁드립니다.',
+            '이벤트 또는 행사 목적의 대관은<br>예약 전 <b>전화 문의(031-287-4600)</b> 부탁드립니다.',
+            '다수 인원 방문 시 <b>승차 공유(카풀)</b>로 방문해 주시면<br>주차 시간을 단축할 수 있습니다. (주말 및 공휴일)',
+            '다음 대관 예약 반려견 친구들을 위하여<br><b>퇴실 5분 전 정리 정돈 및 정시 퇴실</b>을 부탁드립니다.',
+            '<b>외부 음식 반입 및 취사는 불가</b>합니다.<br>테일45 레스토랑에서 반려견과 보호자의<br>음식·음료를 주문하실 수 있습니다.',
+            '대관 시간은 <b>1시간 기준</b>이며,<br><b>1시간 단위로 예약</b> 가능합니다.',
+            '이용 인원 제한은 없지만,<br><b>20명(마리) 이상 시 공간이 협소</b>할 수 있습니다.',
+            '대관 예약 시 대관 공간 외에도<br><b>산책로, 운동장, 레스토랑,<br>굿즈샵(메인홀), 쉼터</b> 등을 함께 이용하실 수 있습니다.'
+        ]
+    }
+};
+
+let purchaseGuideContext = null;
+
+function openPurchaseGuideModal(type) {
+    const guide = PURCHASE_GUIDES[type];
+    if (!guide) return;
+    purchaseGuideContext = type;
+    const titleEl = document.getElementById('purchase-guide-title');
+    const bodyEl = document.getElementById('purchase-guide-body');
+    const checkEl = document.getElementById('purchase-guide-check');
+    const btnEl = document.getElementById('purchase-guide-confirm-btn');
+    if (titleEl) titleEl.textContent = guide.title;
+    if (bodyEl) {
+        const lis = guide.items.map((item, i) => {
+            const last = i === guide.items.length - 1;
+            return `<li style="margin-bottom: ${last ? '0' : '12px'};">${item}</li>`;
+        }).join('');
+        bodyEl.innerHTML = `<ul style="margin: 0; padding-left: 20px; font-size: 0.88rem; line-height: 1.8; color: #333; word-break: keep-all;">${lis}</ul>`;
+    }
+    if (checkEl) checkEl.checked = false;
+    if (btnEl) {
+        btnEl.classList.add('disabled');
+        btnEl.disabled = true;
+    }
+    openModalById('purchase-guide-modal');
+}
+
+function closePurchaseGuideModal() {
+    purchaseGuideContext = null;
+    closeModalById('purchase-guide-modal');
+}
+
+function togglePurchaseGuideBtn() {
+    const checkEl = document.getElementById('purchase-guide-check');
+    const btnEl = document.getElementById('purchase-guide-confirm-btn');
+    if (!checkEl || !btnEl) return;
+    if (checkEl.checked) {
+        btnEl.classList.remove('disabled');
+        btnEl.disabled = false;
+    } else {
+        btnEl.classList.add('disabled');
+        btnEl.disabled = true;
+    }
+}
+
+function confirmPurchaseGuide() {
+    const type = purchaseGuideContext;
+    closePurchaseGuideModal();
+    if (type === 'daypass') {
+        handleDaypassPurchase();
+    } else if (type === 'reservation') {
+        handleReservationSubmit();
+    }
 }

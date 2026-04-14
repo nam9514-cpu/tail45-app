@@ -112,13 +112,34 @@
                             <i class="ph ph-plus-circle" style="font-size: 1.1rem; vertical-align: middle; margin-right: 4px;"></i>다른 반려견 추가하기
                         </button>
 
-                        <!-- 개인정보 처리방침 동의 -->
-                        <div class="privacy-agree-box" style="background: #F8F9FA; border: 1px solid rgba(0,0,0,0.06); border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
-                            <input type="checkbox" id="signup-privacy-check" onchange="toggleSignupSubmitBtn()" style="width: 20px; height: 20px; accent-color: var(--primary); flex-shrink: 0; cursor: pointer; margin: 0;">
-                            <label for="signup-privacy-check" style="font-size: 0.9rem; color: var(--text-main); font-weight: 600; flex: 1; line-height: 1.4; margin: 0; cursor: pointer;">
-                                <span style="color: var(--primary);">[필수]</span> 개인정보 처리방침에 동의합니다
-                            </label>
-                            <button type="button" onclick="openPrivacyModal()" style="background: none; border: none; padding: 4px 6px; font-size: 0.8rem; color: var(--primary); font-weight: 700; text-decoration: underline; cursor: pointer; flex-shrink: 0;">전문 보기</button>
+                        <!-- 약관 동의 -->
+                        <div class="privacy-agree-box" style="background: #F8F9FA; border: 1px solid rgba(0,0,0,0.06); border-radius: 14px; padding: 12px 16px; margin-bottom: 16px;">
+                            <!-- 전체 동의 -->
+                            <div style="display: flex; align-items: center; gap: 10px; padding: 6px 0 10px; border-bottom: 1px solid rgba(0,0,0,0.08);">
+                                <input type="checkbox" id="signup-all-check" onchange="toggleAllSignupTerms()" style="width: 20px; height: 20px; accent-color: var(--primary); flex-shrink: 0; cursor: pointer; margin: 0;">
+                                <label for="signup-all-check" style="font-size: 0.95rem; color: var(--text-main); font-weight: 700; flex: 1; margin: 0; cursor: pointer;">전체 동의</label>
+                            </div>
+                            <!-- 개별 항목 -->
+                            <div style="display: flex; align-items: center; gap: 10px; padding: 10px 0 6px;">
+                                <input type="checkbox" id="signup-terms-check" onchange="toggleSignupSubmitBtn()" style="width: 18px; height: 18px; accent-color: var(--primary); flex-shrink: 0; cursor: pointer; margin: 0;">
+                                <label for="signup-terms-check" style="font-size: 0.85rem; color: var(--text-main); flex: 1; margin: 0; cursor: pointer;"><span style="color: var(--primary); font-weight: 700;">[필수]</span> 서비스 이용약관 동의</label>
+                                <button type="button" onclick="openTermsModal()" style="background: none; border: none; padding: 4px 6px; font-size: 0.78rem; color: var(--primary); font-weight: 700; text-decoration: underline; cursor: pointer; flex-shrink: 0;">전문 보기</button>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; padding: 6px 0;">
+                                <input type="checkbox" id="signup-privacy-check" onchange="toggleSignupSubmitBtn()" style="width: 18px; height: 18px; accent-color: var(--primary); flex-shrink: 0; cursor: pointer; margin: 0;">
+                                <label for="signup-privacy-check" style="font-size: 0.85rem; color: var(--text-main); flex: 1; margin: 0; cursor: pointer;"><span style="color: var(--primary); font-weight: 700;">[필수]</span> 개인정보 처리방침 동의</label>
+                                <button type="button" onclick="openPrivacyModal()" style="background: none; border: none; padding: 4px 6px; font-size: 0.78rem; color: var(--primary); font-weight: 700; text-decoration: underline; cursor: pointer; flex-shrink: 0;">전문 보기</button>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; padding: 6px 0;">
+                                <input type="checkbox" id="signup-refund-check" onchange="toggleSignupSubmitBtn()" style="width: 18px; height: 18px; accent-color: var(--primary); flex-shrink: 0; cursor: pointer; margin: 0;">
+                                <label for="signup-refund-check" style="font-size: 0.85rem; color: var(--text-main); flex: 1; margin: 0; cursor: pointer;"><span style="color: var(--primary); font-weight: 700;">[필수]</span> 환불 규정 동의</label>
+                                <button type="button" onclick="openRefundModal()" style="background: none; border: none; padding: 4px 6px; font-size: 0.78rem; color: var(--primary); font-weight: 700; text-decoration: underline; cursor: pointer; flex-shrink: 0;">전문 보기</button>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; padding: 6px 0 4px;">
+                                <input type="checkbox" id="signup-safety-check" onchange="toggleSignupSubmitBtn()" style="width: 18px; height: 18px; accent-color: var(--primary); flex-shrink: 0; cursor: pointer; margin: 0;">
+                                <label for="signup-safety-check" style="font-size: 0.85rem; color: var(--text-main); flex: 1; margin: 0; cursor: pointer;"><span style="color: var(--primary); font-weight: 700;">[필수]</span> 시설 이용 안전수칙 동의</label>
+                                <button type="button" onclick="openSafetyModal()" style="background: none; border: none; padding: 4px 6px; font-size: 0.78rem; color: var(--primary); font-weight: 700; text-decoration: underline; cursor: pointer; flex-shrink: 0;">전문 보기</button>
+                            </div>
                         </div>
 
                         <div class="btn-row">
@@ -360,7 +381,8 @@
                         </div>
                         <div class="ticket-type-info">
                             <h3 class="font-bold" style="margin: 0 0 4px 0; font-size: 1.05rem; color: var(--text-main);">당일권</h3>
-                            <p style="margin: 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.45;">당일 영업 종료 시까지<br>자유롭게 이용 가능합니다.</p>
+                            <p style="margin: 0 0 6px; font-size: 0.82rem; color: var(--text-muted); line-height: 1.45;">당일 영업 종료 시까지<br>자유롭게 이용 가능합니다.</p>
+                            <p style="margin: 0; font-size: 0.92rem; font-weight: 700; color: var(--primary);">12,000원 <span style="font-size: 0.75rem; font-weight: 500; color: var(--text-muted);">(보호자 무료)</span></p>
                         </div>
                         <i class="ph ph-caret-right" style="font-size: 1.3rem; color: var(--text-muted); flex-shrink: 0;"></i>
                     </div>
@@ -378,7 +400,8 @@
                         </div>
                         <div class="ticket-type-info">
                             <h3 class="font-bold" style="margin: 0 0 4px 0; font-size: 1.05rem; color: var(--text-main);">A동 대관 예약</h3>
-                            <p style="margin: 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.45;">날짜와 시간을 선택하여<br>A동을 미리 예약하세요.</p>
+                            <p style="margin: 0 0 6px; font-size: 0.82rem; color: var(--text-muted); line-height: 1.45;">날짜와 시간을 선택하여<br>A동을 미리 예약하세요.</p>
+                            <p style="margin: 0; font-size: 0.92rem; font-weight: 700; color: var(--primary);">50,000원 <span style="font-size: 0.75rem; font-weight: 500; color: var(--text-muted);">/ 1시간</span></p>
                         </div>
                         <i class="ph ph-caret-right" style="font-size: 1.3rem; color: var(--text-muted); flex-shrink: 0;"></i>
                     </div>
@@ -390,7 +413,8 @@
                         </div>
                         <div class="ticket-type-info">
                             <h3 class="font-bold" style="margin: 0 0 4px 0; font-size: 1.05rem; color: var(--text-main);">B동 대관 예약</h3>
-                            <p style="margin: 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.45;">날짜와 시간을 선택하여<br>B동을 미리 예약하세요.</p>
+                            <p style="margin: 0 0 6px; font-size: 0.82rem; color: var(--text-muted); line-height: 1.45;">날짜와 시간을 선택하여<br>B동을 미리 예약하세요.</p>
+                            <p style="margin: 0; font-size: 0.92rem; font-weight: 700; color: var(--primary);">50,000원 <span style="font-size: 0.75rem; font-weight: 500; color: var(--text-muted);">/ 1시간</span></p>
                         </div>
                         <i class="ph ph-caret-right" style="font-size: 1.3rem; color: var(--text-muted); flex-shrink: 0;"></i>
                     </div>
@@ -488,9 +512,9 @@
                     </div>
                     <label class="terms-check-row" onclick="event.stopPropagation()">
                         <input type="checkbox" id="rsv-terms-check" onchange="toggleTermsBtn('rsv')">
-                        <span class="terms-check-label">이용수칙을 확인하였으며 이에 동의합니다.</span>
+                        <span class="terms-check-label">환불 규정 및 시설 이용 안전수칙에 동의합니다. <a href="javascript:void(0)" onclick="event.preventDefault(); event.stopPropagation(); openRefundModal();" style="color: var(--primary); text-decoration: underline; font-weight: 700;">환불</a> / <a href="javascript:void(0)" onclick="event.preventDefault(); event.stopPropagation(); openSafetyModal();" style="color: var(--primary); text-decoration: underline; font-weight: 700;">안전수칙</a></span>
                     </label>
-                    <button id="rsv-submit-btn" class="primary-btn full-width disabled" onclick="handleReservationSubmit()" style="padding: 16px; font-size: 1rem; border-radius: 12px;" disabled>예약 신청하기</button>
+                    <button id="rsv-submit-btn" class="primary-btn full-width disabled" onclick="openPurchaseGuideModal('reservation')" style="padding: 16px; font-size: 1rem; border-radius: 12px;" disabled>예약 신청하기</button>
                 </div>
             </section>
 
@@ -506,7 +530,7 @@
 
                 <div class="p-20" style="padding-top: 8px; padding-bottom: 100px;">
                     <!-- 안내 -->
-                    <div style="background: linear-gradient(135deg, rgba(250,176,5,0.1), rgba(250,176,5,0.03)); border: 1px solid rgba(250,176,5,0.25); border-radius: 12px; padding: 14px 16px; margin-bottom: 20px;">
+                    <div style="background: linear-gradient(135deg, rgba(250,176,5,0.1), rgba(250,176,5,0.03)); border: 1px solid rgba(250,176,5,0.25); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px;">
                         <div style="display: flex; align-items: flex-start; gap: 10px;">
                             <i class="ph-fill ph-info" style="font-size: 1.1rem; color: #E09800; flex-shrink: 0; margin-top: 1px;"></i>
                             <p style="margin: 0; font-size: 0.8rem; color: #92400E; line-height: 1.55;">
@@ -514,6 +538,7 @@
                             </p>
                         </div>
                     </div>
+
 
                     <!-- 달력 -->
                     <div class="rsv-card">
@@ -559,9 +584,9 @@
                     </div>
                     <label class="terms-check-row" onclick="event.stopPropagation()">
                         <input type="checkbox" id="dp-terms-check" onchange="toggleTermsBtn('dp')">
-                        <span class="terms-check-label">이용수칙을 확인하였으며 이에 동의합니다.</span>
+                        <span class="terms-check-label">환불 규정 및 시설 이용 안전수칙에 동의합니다. <a href="javascript:void(0)" onclick="event.preventDefault(); event.stopPropagation(); openRefundModal();" style="color: var(--primary); text-decoration: underline; font-weight: 700;">환불</a> / <a href="javascript:void(0)" onclick="event.preventDefault(); event.stopPropagation(); openSafetyModal();" style="color: var(--primary); text-decoration: underline; font-weight: 700;">안전수칙</a></span>
                     </label>
-                    <button id="dp-submit-btn" class="primary-btn full-width disabled" onclick="handleDaypassPurchase()" style="padding: 16px; font-size: 1rem; border-radius: 12px;" disabled>당일권 구매하기</button>
+                    <button id="dp-submit-btn" class="primary-btn full-width disabled" onclick="openPurchaseGuideModal('daypass')" style="padding: 16px; font-size: 1rem; border-radius: 12px;" disabled>당일권 구매하기</button>
                 </div>
             </section>
             
@@ -698,8 +723,10 @@
                     <!-- 3. 이용 요금 -->
                     <h3 class="font-bold" style="font-size: 1.05rem; color: var(--text-main); margin-top: 20px; margin-bottom: 8px;">이용 요금</h3>
                     <div class="glass-card" style="padding: 16px; border: 1px solid rgba(0,0,0,0.05); background: white; margin-bottom: 12px;">
-                        <div class="flex-between mb-2 text-sm text-gray"><span style="color: #666;">입장료 (반려견 1마리당)</span><span class="font-bold text-primary">₩12,000</span></div>
-                        <div class="flex-between text-sm text-gray"><span style="color: #666;">보호자</span><span class="font-bold text-success">무료</span></div>
+                        <div class="flex-between mb-2 text-sm text-gray"><span style="color: #666;">당일권 (반려견 1마리당)</span><span class="font-bold text-primary">₩12,000</span></div>
+                        <div class="flex-between mb-2 text-sm text-gray"><span style="color: #666;">보호자</span><span class="font-bold text-success">무료</span></div>
+                        <div class="flex-between mb-2 text-sm text-gray" style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 8px;"><span style="color: #666;">A동 대관</span><span class="font-bold text-primary">₩50,000 <span style="font-size: 0.75rem; font-weight: 500; color: var(--text-muted);">/ 1시간</span></span></div>
+                        <div class="flex-between text-sm text-gray"><span style="color: #666;">B동 대관</span><span class="font-bold text-primary">₩50,000 <span style="font-size: 0.75rem; font-weight: 500; color: var(--text-muted);">/ 1시간</span></span></div>
                     </div>
 
                     <!-- 4. 시설 안내 (훈련 제외) -->
@@ -731,7 +758,8 @@
                     <h3 class="font-bold" style="font-size: 1.05rem; color: var(--text-main); margin-top: 20px; margin-bottom: 8px;">이용 규칙</h3>
                     <div class="glass-card mb-4" style="padding: 16px; border: 1px solid rgba(0,0,0,0.05); background: white;">
                         <ul class="text-sm text-gray m-0" style="padding-left: 20px; line-height: 2;">
-                            <li style="color: #666; margin-bottom: 8px;">12세 이상 입장 가능 (프라이빗 존 제외)</li>
+                            <li style="color: #666; margin-bottom: 8px;">테일45는 <b>만 10세 이상</b>부터 입장 가능한 <b>노키즈 존</b>입니다.<br>(만 10세 미만 어린이 입장 불가)</li>
+                            <li style="color: #666; margin-bottom: 8px;">단, <b>프라이빗 존</b>은 만 10세 미만 어린이도 보호자 동반 시,<br>입장 가능합니다.</li>
                             <li style="color: #666; margin-bottom: 8px;">운동장 외 구역에서는 리드줄 착용 필수</li>
                             <li style="color: #666; margin-bottom: 8px;">반려견 배설물은 직접 치워주세요</li>
                             <li style="color: #666; margin-bottom: 8px;">운동장 내 음식물 반입 금지 (음료만 가능)</li>
@@ -741,14 +769,50 @@
 
                     <!-- 6. 문의 -->
                     <h3 class="font-bold" style="font-size: 1.05rem; color: var(--text-main); margin-bottom: 10px;">문의</h3>
-                    <div class="glass-card mb-[100px]" style="padding: 16px; border: 1px solid rgba(0,0,0,0.05); background: white; margin-bottom: 80px;">
+                    <div class="glass-card mb-4" style="padding: 16px; border: 1px solid rgba(0,0,0,0.05); background: white;">
                         <div class="flex-between flex-align-center">
-                            <span class="font-bold text-gray" style="font-size: 1.1rem; color: #333;">0507-1387-4602</span>
-                            <button class="pointer text-white text-sm font-bold bg-primary" style="padding: 12px 16px; border-radius: 20px; border: none;" onclick="location.href='tel:0507-1387-4602'">
+                            <span class="font-bold text-gray" style="font-size: 1.1rem; color: #333;">031-287-4600</span>
+                            <button class="pointer text-white text-sm font-bold bg-primary" style="padding: 12px 16px; border-radius: 20px; border: none;" onclick="location.href='tel:031-287-4600'">
                                 <i class="ph-fill ph-phone mr-1"></i>전화하기
                             </button>
                         </div>
                     </div>
+
+                    <!-- 7. 약관 및 정책 -->
+                    <h3 class="font-bold" style="font-size: 1.05rem; color: var(--text-main); margin-top: 20px; margin-bottom: 10px;">약관 및 정책</h3>
+                    <div class="glass-card mb-4" style="padding: 6px 16px; border: 1px solid rgba(0,0,0,0.05); background: white;">
+                        <div class="pointer flex-between flex-align-center" style="padding: 14px 0; border-bottom: 1px solid #F0F0F0;" onclick="openTermsModal()">
+                            <span style="color: #333; font-size: 0.92rem;">서비스 이용약관</span>
+                            <i class="ph ph-caret-right" style="color: #BBB;"></i>
+                        </div>
+                        <div class="pointer flex-between flex-align-center" style="padding: 14px 0; border-bottom: 1px solid #F0F0F0;" onclick="openPrivacyModal()">
+                            <span style="color: #333; font-size: 0.92rem;">개인정보 처리방침</span>
+                            <i class="ph ph-caret-right" style="color: #BBB;"></i>
+                        </div>
+                        <div class="pointer flex-between flex-align-center" style="padding: 14px 0; border-bottom: 1px solid #F0F0F0;" onclick="openRefundModal()">
+                            <span style="color: #333; font-size: 0.92rem;">환불 규정</span>
+                            <i class="ph ph-caret-right" style="color: #BBB;"></i>
+                        </div>
+                        <div class="pointer flex-between flex-align-center" style="padding: 14px 0;" onclick="openSafetyModal()">
+                            <span style="color: #333; font-size: 0.92rem;">시설 이용 안전수칙</span>
+                            <i class="ph ph-caret-right" style="color: #BBB;"></i>
+                        </div>
+                    </div>
+
+                    <!-- 8. 사업자 정보 -->
+                    <h3 class="font-bold" style="font-size: 1.05rem; color: var(--text-main); margin-top: 20px; margin-bottom: 10px;">사업자 정보</h3>
+                    <div class="glass-card mb-4" style="padding: 16px; border: 1px solid rgba(0,0,0,0.05); background: white;">
+                        <div style="font-size: 0.85rem; line-height: 1.9; color: #555;">
+                            <div style="display: flex; gap: 8px;"><span style="color: #888; min-width: 92px;">상호명</span><span style="color: #333;">(주)페츠콤</span></div>
+                            <div style="display: flex; gap: 8px;"><span style="color: #888; min-width: 92px;">대표자명</span><span style="color: #333;">심재규</span></div>
+                            <div style="display: flex; gap: 8px;"><span style="color: #888; min-width: 92px;">사업자등록번호</span><span style="color: #333;">890-88-02753</span></div>
+                            <div style="display: flex; gap: 8px;"><span style="color: #888; min-width: 92px;">통신판매업번호</span><span style="color: #333;">2023-용인기흥-5106</span></div>
+                            <div style="display: flex; gap: 8px;"><span style="color: #888; min-width: 92px;">사업장 주소</span><span style="color: #333;">경기도 용인시 기흥구 고매로 43번길 47</span></div>
+                            <div style="display: flex; gap: 8px;"><span style="color: #888; min-width: 92px;">전화번호</span><span style="color: #333;">031-287-4600</span></div>
+                            <div style="display: flex; gap: 8px;"><span style="color: #888; min-width: 92px;">이메일</span><span style="color: #333;">sim@petscom.com</span></div>
+                        </div>
+                    </div>
+
                 </div>
             </section>
 
@@ -1098,70 +1162,71 @@
                 <i class="ph ph-x pointer" style="font-size: 1.4rem; color: #888;" onclick="closePrivacyModal()"></i>
             </div>
             <div id="privacy-modal-body" style="padding: 18px 22px 8px; overflow-y: auto; flex: 1; font-size: 0.85rem; line-height: 1.7; color: #333; -webkit-overflow-scrolling: touch;">
-                <p style="margin: 0 0 16px; color: #555;"><b>주식회사 페츠큼</b>(이하 <b>'회사'</b>라 한다)은 개인정보 보호법 제30조에 따라 정보 주체의 개인정보를 보호하고 이와 관련한 고충을 신속하고 원활하게 처리할 수 있도록 하기 위하여 다음과 같이 개인정보 처리지침을 수립, 공개합니다.</p>
+                <p style="margin: 0 0 16px; color: #555;"><b>주식회사 페츠콤</b>(이하 <b>'회사'</b>)은 「개인정보 보호법」 제30조에 따라 정보주체의 개인정보를 보호하고 이와 관련한 고충을 신속하고 원활하게 처리할 수 있도록 하기 위하여 다음과 같이 개인정보 처리방침을 수립·공개합니다. 본 방침은 회사가 운영하는 반려견 운동장 무인 이용 서비스 <b>'테일45'</b>(이하 '서비스')에 적용됩니다.</p>
 
                 <h4 class="privacy-article">제1조 (개인정보의 처리목적)</h4>
-                <p>회사는 다음의 목적을 위하여 개인정보를 처리합니다. 처리하고 있는 개인정보는 다음의 목적 이외의 용도로는 이용되지 않으며, 이용 목적이 변경되는 경우에는 개인정보보호법 제18조에 따라 별도의 동의를 받는 등 필요한 조치를 이행할 예정입니다.</p>
-                <p><b>1. 홈페이지 회원 가입 및 관리</b><br>회원 가입 의사 확인, 회원제 서비스 제공에 따른 본인 식별·인증, 회원자격 유지·관리, 제한적 본인확인제 시행에 따른 본인확인, 서비스 부정 이용 방지, 만 14세 미만 아동의 개인정보처리 시 법정대리인의 동의 여부 확인, 각종 고지·통지, 고충 처리 등을 목적으로 개인정보를 처리합니다.</p>
-                <p><b>2. 재화 또는 서비스 제공</b><br>물품 배송, 서비스 제공, 계약서 및 청구서 발송, 콘텐츠 제공, 맞춤서비스 제공, 본인인증, 연령인증, 요금 결제 및 정산, 채권추심 등을 목적으로 개인정보를 처리합니다.</p>
-                <p><b>3. 고충 처리</b><br>민원인의 신원 확인, 민원사항 확인, 사실조사를 위한 연락·통지, 처리 결과 통보 등의 목적으로 개인정보를 처리합니다.</p>
+                <p>회사는 다음의 목적을 위하여 개인정보를 처리합니다. 처리하고 있는 개인정보는 다음의 목적 이외의 용도로는 이용되지 않으며, 이용 목적이 변경되는 경우에는 「개인정보 보호법」 제18조에 따라 별도의 동의를 받는 등 필요한 조치를 이행합니다.</p>
+                <p><b>1. 회원 가입 및 관리</b><br>회원 가입 의사 확인, 본인 식별·인증, 회원자격 유지·관리, 서비스 부정 이용 방지, 만 14세 미만 아동의 개인정보 처리 시 법정대리인의 동의 여부 확인, 각종 고지·통지, 고충 처리</p>
+                <p><b>2. 서비스 제공 및 이용권 결제</b><br>반려견 운동장 이용권(당일권·대관 예약권) 결제 및 정산, QR 기반 무인 출입 시스템 제공, 운동장 실시간 현황 조회, 포인트 적립 및 사용, 본인인증, 이용 이력 관리</p>
+                <p><b>3. 고객 문의 및 고충 처리</b><br>민원인의 신원 확인, 문의 사항 확인, 사실조사를 위한 연락·통지, 처리 결과 통보</p>
+                <p><b>4. 법령상 의무 이행</b><br>관계 법령에 따른 거래 기록 보존, 분쟁 해결 등</p>
 
                 <h4 class="privacy-article">제2조 (개인정보의 처리 및 보유기간)</h4>
-                <p>① 회사는 법령에 따른 개인정보 보유, 이용 기간 또는 정보주체로부터 개인정보를 수집 시에 동의 받은 개인정보 보유, 이용 기간 내에서 개인정보를 처리, 보유합니다.</p>
+                <p>① 회사는 법령에 따른 개인정보 보유·이용기간 또는 정보주체로부터 개인정보 수집 시 동의받은 개인정보 보유·이용기간 내에서 개인정보를 처리·보유합니다.</p>
                 <p>② 각각의 개인정보 처리 및 보유 기간은 다음과 같습니다.</p>
-                <p><b>1. 홈페이지 회원 가입 및 관리</b> : 사업자/단체 홈페이지 탈퇴 시까지<br>다만, 다음의 사유에 해당하는 경우에는 해당 사유 종료 시까지<br>1) 관계 법령 위반에 따른 수사, 조사 등이 진행 중인 경우에는 해당 수사, 조사 종료 시까지<br>2) 홈페이지 이용에 따른 채권 및 채무관계 잔존 시에는 해당 채권, 채무 관계 정산 시까지</p>
-                <p><b>2. 재화 또는 서비스 제공</b> : 재화·서비스 공급완료 및 요금결제·정산 완료 시까지<br>다만, 다음의 사유에 해당하는 경우에는 해당 기간 종료 시까지<br>1) 「전자상거래 등에서의 소비자 보호에 관한 법률」에 따른 표시·광고, 계약내용 및 이행 등 거래에 관한 기록<br>&nbsp;&nbsp;- 표시·광고에 관한 기록 : 6월<br>&nbsp;&nbsp;- 계약 또는 청약 철회, 대금결제, 재화 등의 공급기록 : 5년<br>&nbsp;&nbsp;- 소비자 불만 또는 분쟁 처리에 관한 기록 : 3년<br>2) 「통신비밀보호법」 제41조에 따른 통신사실확인자료 보관<br>&nbsp;&nbsp;- 가입자 전기통신일시, 개시·종료 시간, 상대방 가입자 번호, 사용도수, 발신기지국 위치추적자료 : 1년<br>&nbsp;&nbsp;- 컴퓨터 통신, 인터넷 로그 기록자료, 접속지 추적자료 : 3개월</p>
+                <p><b>1. 회원 가입 및 관리</b> : 회원 탈퇴 시까지<br>다만, 다음의 사유에 해당하는 경우에는 해당 사유 종료 시까지<br>1) 관계 법령 위반에 따른 수사·조사 등이 진행 중인 경우 : 해당 수사·조사 종료 시까지<br>2) 서비스 이용에 따른 채권·채무관계 잔존 시 : 해당 채권·채무 관계 정산 시까지</p>
+                <p><b>2. 서비스 제공 및 결제</b> : 서비스 공급 완료 및 요금 결제·정산 완료 시까지<br>다만, 다음의 사유에 해당하는 경우에는 해당 기간 종료 시까지<br>1) 「전자상거래 등에서의 소비자 보호에 관한 법률」에 따른 기록 보관<br>&nbsp;&nbsp;- 표시·광고에 관한 기록 : 6개월<br>&nbsp;&nbsp;- 계약 또는 청약 철회, 대금결제, 재화 등의 공급 기록 : 5년<br>&nbsp;&nbsp;- 소비자 불만 또는 분쟁 처리에 관한 기록 : 3년<br>2) 「통신비밀보호법」에 따른 로그 기록 보관 : 3개월</p>
 
                 <h4 class="privacy-article">제3조 (개인정보의 제3자 제공)</h4>
-                <p>① 회사는 정보주체의 개인정보를 제1조(개인정보의 처리목적)에서 명시한 범위 내에서만 처리하며, 정보주체의 동의, 법률의 특별한 규정 등 개인정보 보호법 제17조에 해당하는 경우에만 개인정보를 제3자에게 제공합니다.</p>
-                <p>② 회사는 다음과 같이 개인정보를 제3자에게 제공하고 있습니다.<br>- 개인정보를 제공받는 자 : (예) (주) OOO 카드<br>- 제공받는 자의 개인정보 이용목적 : (예) 이벤트 공동개최 등 업무제휴 및 제휴 신용카드 발급<br>- 제공하는 개인정보 항목 : (예) 성명, 주소, 전화번호, 이메일주소, 카드결제계좌정보<br>- 제공받는 자의 보유, 이용기간 : (예) 신용카드 발급계약에 따른 거래기간동안</p>
+                <p>① 회사는 정보주체의 개인정보를 제1조에서 명시한 범위 내에서만 처리하며, 정보주체의 사전 동의, 법률의 특별한 규정 등 「개인정보 보호법」 제17조에 해당하는 경우에만 개인정보를 제3자에게 제공합니다.</p>
+                <p>② 회사는 현재 회원의 개인정보를 제3자에게 제공하지 않습니다. 향후 제3자 제공이 필요한 경우 제공 대상, 목적, 항목, 보유기간 등을 고지하고 정보주체의 별도 동의를 받은 후에 제공합니다.</p>
 
                 <h4 class="privacy-article">제4조 (개인정보처리의 위탁)</h4>
-                <p>① 회사는 원활한 개인정보 업무처리를 위하여 다음과 같이 개인정보 처리업무를 위탁하고 있습니다.</p>
-                <p><b>· 위탁받는 자 (수탁자)</b> : (주)아임웹<br><b>· 위탁하는 업무의 내용</b> : 쇼핑몰 호스팅 서비스의 시스템 제공, 모바일 앱 서비스, 마케팅 서비스 및 부가·제휴서비스 제공 및 알림톡, 친구톡, 문자메시지 발송대행 서비스 등</p>
-                <p><b>· 위탁받는 자 (수탁자)</b> : OOO PG<br><b>· 위탁하는 업무의 내용</b> : 결제 및 에스크로 업무</p>
-                <p><b>· 위탁받는 자 (수탁자)</b> : OOO 택배<br><b>· 위탁하는 업무의 내용</b> : 상품 배송 업무</p>
-                <p><b>· 위탁받는 자 (수탁자)</b> : OOO 고객센터<br><b>· 위탁하는 업무의 내용</b> : 고객상담 업무</p>
-                <p><b>· 위탁받는 자 (수탁자)</b> : OOO<br><b>· 위탁하는 업무의 내용</b> : 본인확인 업무</p>
-                <p>② 회사는 위탁계약 체결 시 개인정보 보호법 제25조에 따라 위탁업무 수행목적 외 개인정보 처리금지, 기술적·관리적 보호조치, 재위탁 제한, 수탁자에 대한 관리·감독, 손해배상 등 책임에 관한 사항을 계약서 등 문서에 명시하고, 수탁자가 개인정보를 안전하게 처리하는지를 감독하고 있습니다.</p>
-                <p>③ 위탁업무의 내용이나 수탁자가 변경될 경우에는 지체없이 본 개인정보 처리방침을 통하여 공개하도록 하겠습니다.</p>
+                <p>① 회사는 원활한 서비스 제공을 위하여 다음과 같이 개인정보 처리업무를 위탁하고 있습니다.</p>
+                <p><b>· 수탁자</b> : 주식회사 포트원(PortOne)<br><b>· 위탁 업무</b> : 결제 처리 및 결제 대행(PG) 서비스</p>
+                <p><b>· 수탁자</b> : 주식회사 카카오<br><b>· 위탁 업무</b> : 카카오 간편 로그인을 이용한 본인확인 및 계정 연동</p>
+                <p><b>· 수탁자</b> : 네이버 주식회사<br><b>· 위탁 업무</b> : 네이버 간편 로그인을 이용한 본인확인 및 계정 연동</p>
+                <p><b>· 수탁자</b> : Cloudflare, Inc.<br><b>· 위탁 업무</b> : 서비스 인프라(데이터베이스·호스팅) 제공</p>
+                <p>② 회사는 위탁계약 체결 시 「개인정보 보호법」 제26조에 따라 위탁업무 수행목적 외 개인정보 처리금지, 기술적·관리적 보호조치, 재위탁 제한, 수탁자에 대한 관리·감독, 손해배상 등 책임에 관한 사항을 계약서 등 문서에 명시하고, 수탁자가 개인정보를 안전하게 처리하는지를 감독합니다.</p>
+                <p>③ 위탁업무의 내용이나 수탁자가 변경될 경우에는 지체없이 본 개인정보 처리방침을 통하여 공개합니다.</p>
 
-                <h4 class="privacy-article">제5조 (이용자 및 법정대리인의 권리와 그 행사 방법)</h4>
+                <h4 class="privacy-article">제5조 (정보주체 및 법정대리인의 권리와 그 행사 방법)</h4>
                 <p>① 정보주체는 회사에 대해 언제든지 다음 각 호의 개인정보 보호 관련 권리를 행사할 수 있습니다.<br>1. 개인정보 열람 요구<br>2. 오류 등이 있을 경우 정정 요구<br>3. 삭제 요구<br>4. 처리정지 요구</p>
-                <p>② 제1항에 따른 권리 행사는 회사에 대해 서면, 전화, 전자우편, 모사전송(FAX) 등을 통하여 하실 수 있으며 회사는 이에 대해 지체없이 조치하겠습니다.</p>
-                <p>③ 정보주체가 개인정보의 오류 등에 대한 정정 또는 삭제를 요구한 경우에는 회사는 정정 또는 삭제를 완료할 때까지 당해 개인정보를 이용하거나 제공하지 않습니다.</p>
-                <p>④ 제1항에 따른 권리 행사는 정보주체의 법정대리인이나 위임을 받은 자 등 대리인을 통하여 하실 수 있습니다. 이 경우 개인정보 보호법 시행규칙 별지 제11호 서식에 따른 위임장을 제출하셔야 합니다.</p>
-                <p>⑤ 정보주체는 개인정보 보호법 등 관계 법령을 위반하여 회사가 처리하고 있는 정보주체 본인이나 타인의 개인정보 및 사생활을 침해하여서는 아니 됩니다.</p>
+                <p>② 제1항에 따른 권리 행사는 회사에 대해 서면, 전자우편 등을 통하여 하실 수 있으며 회사는 이에 대해 지체없이 조치합니다.</p>
+                <p>③ 정보주체가 개인정보의 오류 등에 대한 정정 또는 삭제를 요구한 경우 회사는 정정 또는 삭제를 완료할 때까지 해당 개인정보를 이용하거나 제공하지 않습니다.</p>
+                <p>④ 제1항에 따른 권리 행사는 정보주체의 법정대리인이나 위임을 받은 자 등 대리인을 통하여 하실 수 있습니다. 이 경우 「개인정보 보호법」 시행규칙 별지 제11호 서식에 따른 위임장을 제출하셔야 합니다.</p>
+                <p>⑤ 정보주체는 「개인정보 보호법」 등 관계 법령을 위반하여 회사가 처리하고 있는 정보주체 본인이나 타인의 개인정보 및 사생활을 침해하여서는 아니 됩니다.</p>
 
                 <h4 class="privacy-article">제6조 (처리하는 개인정보 항목)</h4>
-                <p>회사는 다음의 개인정보 항목을 처리하고 있습니다.</p>
-                <p><b>1. 홈페이지 회원 가입 및 관리</b><br>· 필수항목 : (예) 성명, 생년월일, 아이디, 비밀번호, 주소, 전화번호, 성별, 이메일주소, 아이핀번호<br>· 선택항목 : (예) 결혼 여부, 관심 분야</p>
-                <p><b>2. 재화 또는 서비스 제공</b><br>· 필수항목 : (예) 성명, 생년월일, 아이디, 비밀번호, 주소, 전화번호, 이메일주소, 아이핀번호, 신용카드번호, 은행계좌정보 등 결제정보<br>· 선택항목 : 관심분야, 과거 구매내역</p>
-                <p><b>3. 자동 생성·수집 정보</b><br>인터넷 서비스 이용과정에서 IP주소, 쿠키, MAC주소, 서비스 이용기록, 방문기록, 불량 이용기록 등이 자동으로 생성·수집될 수 있습니다.</p>
+                <p>회사는 서비스 제공을 위해 다음의 개인정보 항목을 처리합니다.</p>
+                <p><b>1. 회원 가입 및 관리 (이메일 가입)</b><br>· 필수항목 : 성명, 이메일, 비밀번호, 휴대전화번호, 주소(기본주소 및 상세주소)<br>· 선택항목 : 없음</p>
+                <p><b>2. 회원 가입 및 관리 (소셜 로그인 — 카카오·네이버)</b><br>· 필수항목 : 소셜 플랫폼 고유 식별자, 성명, 이메일(제공 동의 시)<br>· 선택항목 : 프로필 이미지(제공 동의 시)</p>
+                <p><b>3. 반려견 정보</b><br>· 필수항목 : 반려견 이름, 견종, 나이, 체중, 성별, 중성화 여부, 예방접종 여부</p>
+                <p><b>4. 서비스 이용 및 결제</b><br>· 필수항목 : 이용권 구매·이용 이력, 포인트 적립·사용 이력, 결제 일시·금액·수단<br>· 주의 : 신용카드번호 등 결제 수단의 민감정보는 회사가 직접 수집·보관하지 않으며, 결제대행사(PG사)가 관계 법령에 따라 처리합니다.</p>
+                <p><b>5. 자동 생성·수집 정보</b><br>서비스 이용 과정에서 IP 주소, 쿠키, 서비스 이용 기록, 접속 로그 등이 자동으로 생성·수집될 수 있습니다.</p>
 
                 <h4 class="privacy-article">제7조 (개인정보의 파기)</h4>
                 <p>① 회사는 개인정보 보유 기간의 경과, 처리목적 달성 등 개인정보가 불필요하게 되었을 때에는 지체없이 해당 개인정보를 파기합니다.</p>
                 <p>② 정보주체로부터 동의받은 개인정보 보유 기간이 경과하거나 처리목적이 달성되었음에도 불구하고 다른 법령에 따라 개인정보를 계속 보존하여야 하는 경우에는, 해당 개인정보를 별도의 데이터베이스(DB)로 옮기거나 보관장소를 달리하여 보존합니다.</p>
-                <p>③ 개인정보 파기의 절차 및 방법은 다음과 같습니다.<br><b>1. 파기 절차</b> : 회사는 파기 사유가 발생한 개인정보를 선정하고, 회사의 개인정보 보호책임자의 승인을 받아 개인정보를 파기합니다.<br><b>2. 파기 방법</b> : 전자적 파일 형태로 기록·저장된 개인정보는 기록을 재생할 수 없도록 로우레벨포맷(Low Level Format) 등의 방법을 이용하여 파기하며, 종이 문서에 기록·저장된 개인정보는 분쇄기로 분쇄하거나 소각하여 파기합니다.</p>
+                <p>③ 개인정보 파기의 절차 및 방법은 다음과 같습니다.<br><b>1. 파기 절차</b> : 회사는 파기 사유가 발생한 개인정보를 선정하고, 개인정보 보호책임자의 승인을 받아 개인정보를 파기합니다.<br><b>2. 파기 방법</b> : 전자적 파일 형태로 기록·저장된 개인정보는 기록을 재생할 수 없도록 로우레벨 포맷(Low Level Format) 등의 방법을 이용하여 파기하며, 종이 문서에 기록·저장된 개인정보는 분쇄기로 분쇄하거나 소각하여 파기합니다.</p>
 
                 <h4 class="privacy-article">제8조 (개인정보의 안전성 확보조치)</h4>
                 <p>회사는 개인정보의 안전성 확보를 위해 다음과 같은 조치를 하고 있습니다.</p>
-                <p><b>1. 관리적 조치</b> : 내부관리계획 수립 및 시행, 정기적 직원 교육 등<br><b>2. 기술적 조치</b> : 개인정보처리시스템 등의 접근 권한 관리, 접근통제시스템 설치, 고유 식별정보 등의 암호화, 보안프로그램 설치<br><b>3. 물리적 조치</b> : 전산실, 자료보관실 등의 접근통제</p>
+                <p><b>1. 관리적 조치</b> : 내부관리계획 수립·시행, 정기적 직원 교육<br><b>2. 기술적 조치</b> : 개인정보처리시스템 접근 권한 관리, 접근통제시스템 운영, 비밀번호 등 고유 식별정보의 암호화, 보안 프로그램 설치<br><b>3. 물리적 조치</b> : 서버실 및 자료보관실 등의 접근 통제</p>
 
                 <h4 class="privacy-article">제9조 (개인정보 자동 수집 장치의 설치·운영 및 거부에 관한 사항)</h4>
-                <p>① 회사는 이용자에게 개별적인 맞춤 서비스를 제공하기 위해 이용정보를 저장하고 수시로 불러오는 '쿠키(cookie)'를 사용합니다.</p>
-                <p>② 쿠키는 웹사이트를 운영하는데 이용되는 서버(http)가 이용자의 컴퓨터 브라우저에 보내는 소량의 정보이며 이용자들의 컴퓨터 내의 하드디스크에 저장되기도 합니다.</p>
-                <p><b>가. 쿠키의 사용 목적</b> : 이용자가 방문한 각 서비스와 웹 사이트들에 대한 방문 및 이용형태, 인기 검색어, 보안접속 여부 등을 파악하여 이용자에게 최적화된 정보 제공을 위해 사용됩니다.<br><b>나. 쿠키의 설치·운영 및 거부</b> : 웹브라우저 상단의 도구 &gt; 인터넷 옵션 &gt; 개인정보 메뉴의 옵션 설정을 통해 쿠키 저장을 거부할 수 있습니다.<br><b>다.</b> 쿠키 저장을 거부할 경우 맞춤형 서비스 이용에 어려움이 발생할 수 있습니다.</p>
+                <p>① 회사는 이용자에게 개별적인 맞춤 서비스를 제공하기 위해 이용정보를 저장하고 수시로 불러오는 '쿠키(cookie)'를 사용할 수 있습니다.</p>
+                <p>② 쿠키는 서비스 운영에 이용되는 서버가 이용자의 브라우저에 보내는 소량의 정보이며 이용자 단말기에 저장되기도 합니다.</p>
+                <p><b>가. 쿠키의 사용 목적</b> : 로그인 세션 유지, 보안 접속 여부 확인, 이용자에게 최적화된 정보 제공<br><b>나. 쿠키의 설치·운영 및 거부</b> : 이용자는 웹브라우저 설정을 통해 쿠키 저장을 거부할 수 있습니다.<br><b>다.</b> 쿠키 저장을 거부할 경우 로그인이 필요한 일부 서비스 이용에 어려움이 발생할 수 있습니다.</p>
 
                 <h4 class="privacy-article">제10조 (개인정보 보호책임자)</h4>
-                <p>① 회사는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만 처리 및 피해구제 등을 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.</p>
-                <p><b>▶ 개인정보 보호책임자</b><br>· 성명 : OOO<br>· 직책 : OOO<br>· 연락처 : (전화번호), (이메일), (팩스번호)<br>※ 개인정보 보호 담당부서로 연결됩니다.</p>
-                <p><b>▶ 개인정보 보호 담당부서</b><br>· 부서명 : OOO 팀<br>· 담당자 : OOO<br>· 연락처 : (전화번호), (이메일), (팩스번호)</p>
-                <p>② 정보주체께서는 회사의 서비스(또는 사업)를 이용하시면서 발생한 모든 개인정보 보호 관련 문의, 불만 처리, 피해구제 등에 관한 사항을 개인정보 보호책임자 및 담당부서로 문의하실 수 있습니다. 회사는 정보주체의 문의에 대해 지체없이 답변 및 처리해드릴 것입니다.</p>
+                <p>① 회사는 개인정보 처리에 관한 업무를 총괄하여 책임지고, 개인정보 처리와 관련한 정보주체의 불만 처리 및 피해 구제 등을 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.</p>
+                <p><b>▶ 개인정보 보호책임자</b><br>· 성명 : 심재규<br>· 직책 : 대표이사<br>· 연락처 : 031-287-4600 / sim@petscom.com</p>
+                <p>② 정보주체는 회사의 서비스를 이용하면서 발생한 모든 개인정보 보호 관련 문의, 불만 처리, 피해 구제 등에 관한 사항을 개인정보 보호책임자에게 문의할 수 있습니다. 회사는 정보주체의 문의에 대해 지체없이 답변 및 처리합니다.</p>
 
                 <h4 class="privacy-article">제11조 (개인정보 열람청구)</h4>
-                <p>정보주체는 개인정보 보호법 제35조에 따른 개인정보의 열람 청구를 아래의 부서에 할 수 있습니다. 회사는 정보주체의 개인정보 열람 청구가 신속하게 처리되도록 노력하겠습니다.</p>
-                <p><b>▶ 개인정보 열람청구 접수·처리 부서</b><br>· 부서명 : OOO<br>· 담당자 : OOO<br>· 연락처 : (전화번호), (이메일), (팩스번호)</p>
+                <p>정보주체는 「개인정보 보호법」 제35조에 따른 개인정보의 열람 청구를 아래의 연락처로 신청할 수 있습니다. 회사는 정보주체의 개인정보 열람 청구가 신속하게 처리되도록 노력합니다.</p>
+                <p><b>▶ 개인정보 열람청구 접수·처리</b><br>· 담당자 : 심재규<br>· 연락처 : 031-287-4600 / sim@petscom.com</p>
 
                 <h4 class="privacy-article">제12조 (권익침해 구제 방법)</h4>
                 <p>정보주체는 아래의 기관에 대해 개인정보 침해에 대한 피해구제, 상담 등을 문의하실 수 있습니다.</p>
@@ -1174,6 +1239,223 @@
             </div>
             <div style="padding: 14px 22px 20px; border-top: 1px solid rgba(0,0,0,0.06);">
                 <button class="primary-btn full-width" onclick="agreePrivacyFromModal()" style="padding: 14px; font-size: 0.95rem;">동의하고 닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms of Service Modal -->
+    <div id="terms-modal" class="modal-overlay hidden" style="z-index: 1100; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5);">
+        <div class="modal-box bg-white" style="width: 92%; max-width: 520px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); max-height: 85vh; display: flex; flex-direction: column; overflow: hidden;">
+            <div class="flex-between flex-align-center" style="padding: 20px 22px 14px; border-bottom: 1px solid rgba(0,0,0,0.06);">
+                <h3 class="m-0 font-bold" style="font-size: 1.15rem; color: #1C1C1E;">서비스 이용약관</h3>
+                <i class="ph ph-x pointer" style="font-size: 1.4rem; color: #888;" onclick="closeTermsModal()"></i>
+            </div>
+            <div id="terms-modal-body" style="padding: 18px 22px 8px; overflow-y: auto; flex: 1; font-size: 0.85rem; line-height: 1.7; color: #333; -webkit-overflow-scrolling: touch;">
+                <p style="margin: 0 0 16px; color: #555;"><b>주식회사 페츠콤</b>(이하 <b>'회사'</b>)이 운영하는 반려견 운동장 무인 이용 서비스 <b>'테일45'</b>(이하 <b>'서비스'</b>)의 이용에 관한 기본적인 사항을 규정합니다.</p>
+
+                <h4 class="privacy-article">제1조 (목적)</h4>
+                <p>이 약관은 회사가 제공하는 서비스의 이용 조건 및 절차, 회사와 회원의 권리·의무 및 기타 필요한 사항을 규정함을 목적으로 합니다.</p>
+
+                <h4 class="privacy-article">제2조 (용어의 정의)</h4>
+                <p>① "서비스"란 회사가 모바일 앱 또는 웹사이트를 통해 제공하는 반려견 운동장 이용권 결제 및 QR 기반 무인 출입 시스템을 말합니다.</p>
+                <p>② "회원"이란 본 약관에 동의하고 회사와 서비스 이용 계약을 체결한 자를 말합니다.</p>
+                <p>③ "이용권"이란 운동장 이용을 위해 회원이 결제한 당일권 및 대관 예약권을 말하며, 식·음료 등 기타 상품은 포함하지 않습니다.</p>
+
+                <h4 class="privacy-article">제3조 (약관의 효력 및 변경)</h4>
+                <p>① 본 약관은 서비스 화면에 게시함으로써 효력을 발생합니다.</p>
+                <p>② 회사는 관계 법령을 위반하지 않는 범위에서 본 약관을 개정할 수 있으며, 개정 시에는 적용일자 및 개정 사유를 명시하여 적용일 7일 전부터 공지합니다. 회원에게 불리한 변경의 경우 적용일 30일 전부터 공지합니다.</p>
+                <p>③ 회원이 개정된 약관에 동의하지 않는 경우 서비스 이용을 중단하고 탈퇴할 수 있으며, 공지 후 거부의사를 표시하지 않고 서비스를 계속 이용하는 경우 개정 약관에 동의한 것으로 간주합니다.</p>
+
+                <h4 class="privacy-article">제4조 (이용 계약의 성립)</h4>
+                <p>① 이용 계약은 회원이 본 약관 및 개인정보 처리방침에 동의하고 가입 신청을 하여 회사가 승낙함으로써 성립됩니다.</p>
+                <p>② 회사는 다음의 경우 가입 신청을 거절하거나 사후에 이용 계약을 해지할 수 있습니다.</p>
+                <p>1. 실명이 아니거나 타인의 정보를 이용한 경우<br>2. 허위 정보를 기재한 경우<br>3. 과거 회사 규정 위반으로 이용이 제한된 이력이 있는 경우<br>4. 기타 관계 법령을 위반한 경우</p>
+
+                <h4 class="privacy-article">제4조의2 (시설 입장 자격 및 노키즈 존 운영)</h4>
+                <p>① 테일45는 쾌적하고 안전한 반려견 활동 공간 제공을 위해 <b>만 10세 이상부터 입장 가능한 노키즈 존</b>으로 운영됩니다.</p>
+                <p>② 제1항에도 불구하고 <b>프라이빗 존</b>은 만 10세 미만 어린이도 보호자 동반 시 입장할 수 있습니다. 이 경우 보호자는 어린이의 안전에 대한 주의 감독 의무를 부담합니다.</p>
+                <p>③ 입장 자격 및 안전에 관한 상세 기준은 <b>「시설 이용 안전수칙」</b>을 따릅니다.</p>
+
+                <h4 class="privacy-article">제5조 (서비스의 제공)</h4>
+                <p>① 회사는 회원에게 다음의 서비스를 제공합니다.</p>
+                <p>1. 반려견 운동장 이용권 결제 (당일권, 대관 예약권)<br>2. QR 기반 무인 출입 시스템<br>3. 운동장 실시간 현황 조회<br>4. 포인트 적립 및 사용<br>5. 기타 회사가 추가로 개발하거나 제휴계약 등을 통해 회원에게 제공하는 일체의 서비스</p>
+                <p>② 서비스는 연중무휴 제공을 원칙으로 하나, 시설 점검·보수, 시스템 장애, 천재지변 등 불가피한 사유가 있는 경우 일시 중단될 수 있습니다.</p>
+
+                <h4 class="privacy-article">제6조 (이용 요금 및 결제)</h4>
+                <p>① 서비스 이용 요금은 앱 내에 표시된 금액에 따릅니다.</p>
+                <p>② 결제는 국내 신용카드, 체크카드, 간편결제 등 회사가 제공하는 결제 수단을 통해 이루어집니다.</p>
+                <p>③ 결제 대행은 회사가 지정한 전자금융업자(PG사)를 통해 처리됩니다.</p>
+                <p>④ 회원은 본인 명의의 결제 수단을 사용하여야 하며, 타인 명의의 결제 수단 이용으로 발생한 문제에 대한 책임은 회원에게 있습니다.</p>
+
+                <h4 class="privacy-article">제7조 (환불)</h4>
+                <p>이용권의 환불에 관한 사항은 별도로 정한 <b>「환불 규정」</b>에 따릅니다.</p>
+
+                <h4 class="privacy-article">제8조 (회원의 의무)</h4>
+                <p>① 회원은 다음 각 호의 행위를 하여서는 안 됩니다.</p>
+                <p>1. 타인의 정보를 도용하는 행위<br>2. 서비스의 운영을 방해하는 행위<br>3. 공공질서 및 미풍양속에 반하는 행위<br>4. 관계 법령을 위반하는 행위<br>5. <b>「시설 이용 안전수칙」</b>을 위반하는 행위<br>6. 이용권을 제3자에게 양도·매매하는 행위</p>
+                <p>② 회원은 회사의 직원 및 다른 회원에게 폭언·욕설·성희롱 등 부적절한 언행을 해서는 안 됩니다.</p>
+
+                <h4 class="privacy-article">제9조 (회원 자격의 상실 및 제한)</h4>
+                <p>① 회사는 회원이 본 약관 또는 관계 법령을 위반한 경우 사전 통지 후 서비스 이용을 제한하거나 회원 자격을 상실시킬 수 있습니다. 다만, 긴급한 사유가 있는 경우 사후 통지할 수 있습니다.</p>
+                <p>② 이용 제한에 대해 회원은 통지일로부터 14일 이내에 이의를 제기할 수 있으며, 회사는 이의 제기의 정당성을 검토하여 조치합니다.</p>
+
+                <h4 class="privacy-article">제10조 (회원 탈퇴)</h4>
+                <p>회원은 언제든지 앱 내 기능 또는 고객센터를 통해 탈퇴할 수 있으며, 회사는 관계 법령에 따른 보관 의무가 있는 정보를 제외하고 지체 없이 개인정보를 파기합니다.</p>
+
+                <h4 class="privacy-article">제11조 (개인정보 보호)</h4>
+                <p>회사는 회원의 개인정보를 보호하기 위해 별도의 <b>「개인정보 처리방침」</b>을 수립·공개하며, 이에 따라 회원의 개인정보를 처리합니다.</p>
+
+                <h4 class="privacy-article">제12조 (회사의 면책)</h4>
+                <p>① 회사는 다음의 사유로 발생한 손해에 대하여 책임을 지지 않습니다. 단, 회사의 고의 또는 중대한 과실로 인한 경우에는 그러하지 아니합니다.</p>
+                <p>1. 천재지변 또는 이에 준하는 불가항력으로 인한 서비스 중단<br>2. 회원의 귀책사유로 인한 서비스 이용 장애<br>3. 전기통신사업자의 서비스 장애로 인한 손해<br>4. 서비스용 설비의 보수·교체·점검으로 인한 일시적 중단<br>5. 회원 상호 간 또는 회원과 제3자 간의 분쟁</p>
+                <p>② 시설 내에서 발생하는 안전사고에 관한 책임은 별도의 <b>「시설 이용 안전수칙」</b>에 따릅니다.</p>
+
+                <h4 class="privacy-article">제13조 (분쟁 해결 및 재판관할)</h4>
+                <p>① 회사와 회원 간의 분쟁은 상호 협의하여 해결함을 원칙으로 합니다.</p>
+                <p>② 협의가 이루어지지 않을 경우 <b>「전자상거래 등에서의 소비자보호에 관한 법률」</b>, <b>「소비자기본법」</b> 등 관련 법령을 따릅니다.</p>
+                <p>③ 본 약관과 관련하여 소송이 제기되는 경우 민사소송법상의 관할 법원을 따릅니다.</p>
+
+                <h4 class="privacy-article">부칙</h4>
+                <p>본 약관은 <b>2026년 6월 1일</b>부터 시행합니다.</p>
+            </div>
+            <div style="padding: 14px 22px 20px; border-top: 1px solid rgba(0,0,0,0.06);">
+                <button class="primary-btn full-width" onclick="agreeTermsFromModal()" style="padding: 14px; font-size: 0.95rem;">동의하고 닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Refund Policy Modal -->
+    <div id="refund-modal" class="modal-overlay hidden" style="z-index: 1100; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5);">
+        <div class="modal-box bg-white" style="width: 92%; max-width: 520px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); max-height: 85vh; display: flex; flex-direction: column; overflow: hidden;">
+            <div class="flex-between flex-align-center" style="padding: 20px 22px 14px; border-bottom: 1px solid rgba(0,0,0,0.06);">
+                <h3 class="m-0 font-bold" style="font-size: 1.15rem; color: #1C1C1E;">환불 규정</h3>
+                <i class="ph ph-x pointer" style="font-size: 1.4rem; color: #888;" onclick="closeRefundModal()"></i>
+            </div>
+            <div id="refund-modal-body" style="padding: 18px 22px 8px; overflow-y: auto; flex: 1; font-size: 0.85rem; line-height: 1.7; color: #333; -webkit-overflow-scrolling: touch;">
+                <p style="margin: 0 0 16px; color: #555;">본 규정은 <b>주식회사 페츠콤</b>(이하 '회사')이 제공하는 반려견 운동장 이용권의 환불 기준을 명확히 하여 회원의 권익을 보호함을 목적으로 합니다. <b>본 규정은 운동장 이용권(당일권, 대관 예약권)에 한하여 적용되며, 식·음료 등 기타 상품에는 적용되지 않습니다.</b></p>
+
+                <h4 class="privacy-article">제1조 (용어의 정의)</h4>
+                <p>① "당일권"이란 이용 당일의 영업 시간 동안 사용 가능한 운동장 입장권을 말합니다.</p>
+                <p>② "대관 예약권"이란 A동 또는 B동 전체를 지정된 날짜·시간 동안 독점적으로 이용할 수 있는 권한을 말합니다.</p>
+                <p>③ "이용 개시"란 회원이 이용권을 사용하여 운동장에 입장(QR 인증)한 시점을 말합니다.</p>
+
+                <h4 class="privacy-article">제2조 (당일권 환불 기준)</h4>
+                <p>① <b>사용 전(입장 전)</b> : 결제 금액의 100% 환불</p>
+                <p>② <b>사용 개시 후</b> : 환불 불가</p>
+                <p>③ 다음의 경우에는 사용 개시 후에도 환불이 가능합니다.</p>
+                <p>1. 시설 하자 등 회사의 귀책사유로 정상 이용이 불가능한 경우: 100% 환불<br>2. 천재지변 등 불가항력으로 시설 운영이 중단된 경우: 미사용 분에 비례하여 환불</p>
+
+                <h4 class="privacy-article">제3조 (대관 예약권 환불 기준)</h4>
+                <p>이용일을 기준으로 다음과 같이 환불합니다.</p>
+                <p>① <b>이용일 7일 전까지 취소</b> : 결제 금액의 100% 환불<br>② <b>이용일 3~6일 전 취소</b> : 결제 금액의 50% 환불<br>③ <b>이용일 1~2일 전 취소</b> : 결제 금액의 20% 환불<br>④ <b>이용일 당일 취소 및 이용 개시 후</b> : 환불 불가</p>
+                <p>⑤ 회사의 귀책사유 또는 천재지변 등 불가항력으로 이용이 불가능한 경우에는 전액 환불합니다.</p>
+
+                <h4 class="privacy-article">제4조 (환불 신청 절차)</h4>
+                <p>① 환불 요청은 앱 내 <b>[마이페이지 &gt; 이용 내역]</b>에서 신청하거나 고객센터(<b>031-287-4600</b>, 이메일 <b>sim@petscom.com</b>)로 요청할 수 있습니다.</p>
+                <p>② 환불은 결제 수단과 동일한 방법으로 처리되며, 카드 결제의 경우 해당 카드사의 환불 정책에 따라 영업일 기준 3~7일이 소요될 수 있습니다.</p>
+                <p>③ 간편결제·계좌이체 등 결제 대행사(PG사)의 정책에 따라 일부 환불 수수료가 차감될 수 있으며, 해당 내역은 환불 처리 전에 회원에게 고지됩니다.</p>
+
+                <h4 class="privacy-article">제5조 (입장 불가 및 환불)</h4>
+                <p>① 테일45는 <b>만 10세 이상부터 입장 가능한 노키즈 존</b>으로 운영되며, <b>프라이빗 존</b>에 한해 만 10세 미만 어린이가 보호자 동반 시 입장할 수 있습니다.</p>
+                <p>② 노키즈 존 운영 사실은 앱 내 「시설 이용 안전수칙」, 파크정보 및 시설 내 안내물을 통해 사전에 공지됩니다. 회원이 해당 기준을 확인하지 않고 입장할 수 없는 동반자와 함께 방문하여 <b>이용 개시 전</b> 입장이 불가한 경우, 미사용 이용권은 <b>전액 환불</b>됩니다.</p>
+                <p>③ 대관 예약권을 결제한 회원이 만 10세 미만 어린이 동반으로 A동·B동 입장이 불가한 경우, 이용일 전 취소 신청 시 제3조의 기준에 따라 환불되며, 이용일 당일 취소 시에는 환불이 제한될 수 있습니다.</p>
+
+                <h4 class="privacy-article">제6조 (환불 제한 사유)</h4>
+                <p>다음의 경우 환불이 제한될 수 있습니다.</p>
+                <p>① 회원이 <b>「시설 이용 안전수칙」</b>을 위반하여 퇴장 조치된 경우<br>② 타인의 명의로 결제한 경우<br>③ 이용권을 제3자에게 양도·매매한 경우<br>④ 입장 제한 견종을 허위로 기재하여 입장한 경우<br>⑤ 노키즈 존 운영 기준을 고지받은 후 반복적으로 만 10세 미만 어린이를 동반하여 입장을 시도한 경우</p>
+
+                <h4 class="privacy-article">제7조 (청약 철회)</h4>
+                <p>① 회원은 <b>「전자상거래 등에서의 소비자보호에 관한 법률」</b> 제17조에 따라 결제일로부터 7일 이내에 청약 철회를 할 수 있습니다. 단, 이용권의 특성상 이용 개시 후에는 동법 제17조 제2항에 따라 청약 철회가 제한될 수 있습니다.</p>
+                <p>② 청약 철회가 가능한 경우, 회사는 회원의 요청이 도달한 날로부터 3영업일 이내에 환불을 처리합니다.</p>
+
+                <h4 class="privacy-article">제8조 (기타)</h4>
+                <p>본 규정에 명시되지 않은 사항은 <b>「전자상거래 등에서의 소비자보호에 관한 법률」</b>, <b>「소비자기본법」</b> 등 관계 법령 및 공정거래위원회가 고시하는 소비자분쟁해결기준을 따릅니다.</p>
+
+                <h4 class="privacy-article">부칙</h4>
+                <p>본 규정은 <b>2026년 6월 1일</b>부터 시행합니다.</p>
+            </div>
+            <div style="padding: 14px 22px 20px; border-top: 1px solid rgba(0,0,0,0.06);">
+                <button class="primary-btn full-width" onclick="agreeRefundFromModal()" style="padding: 14px; font-size: 0.95rem;">동의하고 닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Safety Rules Modal -->
+    <div id="safety-modal" class="modal-overlay hidden" style="z-index: 1100; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5);">
+        <div class="modal-box bg-white" style="width: 92%; max-width: 520px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); max-height: 85vh; display: flex; flex-direction: column; overflow: hidden;">
+            <div class="flex-between flex-align-center" style="padding: 20px 22px 14px; border-bottom: 1px solid rgba(0,0,0,0.06);">
+                <h3 class="m-0 font-bold" style="font-size: 1.15rem; color: #1C1C1E;">시설 이용 안전수칙</h3>
+                <i class="ph ph-x pointer" style="font-size: 1.4rem; color: #888;" onclick="closeSafetyModal()"></i>
+            </div>
+            <div id="safety-modal-body" style="padding: 18px 22px 8px; overflow-y: auto; flex: 1; font-size: 0.85rem; line-height: 1.7; color: #333; -webkit-overflow-scrolling: touch;">
+                <p style="margin: 0 0 16px; color: #555;">본 수칙은 <b>주식회사 페츠콤</b>이 운영하는 무인 반려견 운동장 <b>테일45</b>(경기도 용인시 기흥구 고매로 43번길 47)의 안전한 이용을 위한 수칙입니다. 회원은 서비스 이용 전 본 수칙을 충분히 숙지하고 준수하여야 합니다.</p>
+
+                <h4 class="privacy-article">제1조 (입장 자격)</h4>
+                <p>① 기초 예방접종 및 광견병 접종이 완료된 반려견에 한하여 입장 가능합니다.</p>
+                <p>② 법적 맹견 5종(도사견·아메리칸 핏불테리어·아메리칸 스태퍼드셔 테리어·스태퍼드셔 불테리어·로트와일러 및 그 잡종) 및 공격성이 확인된 견종은 입장이 제한됩니다.</p>
+                <p>③ 테일45는 <b>만 10세 이상부터 입장 가능한 노키즈 존</b>으로 운영됩니다. 만 10세 미만 어린이는 본 시설(운동장 및 공용 구역)에 입장할 수 없습니다.</p>
+                <p>④ 제3항에도 불구하고 <b>프라이빗 존</b>은 만 10세 미만 어린이도 보호자 동반 시 입장 가능합니다. 이 경우 보호자는 어린이의 안전에 대한 주의 감독 의무를 부담합니다.</p>
+                <p>⑤ 반려견 외 다른 동물은 회사의 사전 허가 없이 동반할 수 없으며, 무단 동반으로 발생한 사고에 대해 회사는 책임을 지지 않습니다.</p>
+
+                <h4 class="privacy-article">제2조 (안전사고 예방)</h4>
+                <p>회원은 시설 내에서 다음의 안전수칙을 반드시 준수해야 합니다.</p>
+                <p>① 운동장 출입문 단속(이중문 원칙)<br>② 운동장 외 구역에서는 리드줄 착용 필수<br>③ 반려견 간 거리 유지 및 보호자의 즉각 개입 가능 상태 유지<br>④ 반려견 배설물의 직접 수거<br>⑤ 운동장 내 외부 음식물 반입 금지(음료 제외)<br>⑥ 차량 운행 및 주차 시 안전 수칙 준수</p>
+
+                <h4 class="privacy-article">제3조 (사고 발생 시 처리)</h4>
+                <p>① 반려견 간의 다툼으로 인한 물림 사고 등이 발생한 경우, 당사자(보호자) 상호 간 합의를 통해 해결함을 원칙으로 하며, 필요 시 회사가 중재에 협조합니다.</p>
+                <p>② 응급 상황 발생 시 회사는 가능한 범위 내에서 응급조치(지혈, 상처 소독, 이동, 가까운 동물병원 연계 등)를 지원합니다. 회원은 이러한 응급조치에 사전 동의합니다.</p>
+                <p>③ 시설의 명백한 하자 또는 회사의 고의·중대한 과실로 인해 발생한 사고에 대해서는 회사가 책임을 부담하며, 그 외의 사유(회원의 안전수칙 위반, 부주의, 제3자의 행위 등)로 인한 사고에 대해서는 회사의 책임이 제한됩니다.</p>
+
+                <h4 class="privacy-article">제4조 (책임 범위)</h4>
+                <p>① 회원의 부주의로 인한 반려견 분실·도난·상해에 대하여 회사는 책임을 지지 않습니다.</p>
+                <p>② 주차장 시설 이용 중 회원의 과실로 발생한 사고에 대하여 회사는 책임을 지지 않습니다. 단, 시설 하자 등 회사의 관리 소홀로 인한 사고는 예외로 합니다.</p>
+                <p>③ 회원 간 분쟁에 대해 회사는 당사자 간 합의를 원칙으로 하며, 필요 시 중재에 협조합니다.</p>
+                <p>④ 귀중품 및 개인 소지품의 분실·도난에 대해 회사는 책임을 지지 않습니다. 단, 회사의 관리 소홀이 명백한 경우는 예외로 합니다.</p>
+                <p>⑤ 본인 또는 타인의 반려견 훈련 행위, 촬영, 행사 등은 회사의 사전 동의를 받아야 하며, 무단 진행으로 발생한 피해에 대해 회사는 책임을 지지 않습니다.</p>
+
+                <h4 class="privacy-article">제5조 (시설물 훼손 및 손해배상)</h4>
+                <p>① 회원 또는 회원의 반려견이 시설물·가구·집기 등을 훼손한 경우 관계 법령에 따라 손해 배상을 청구할 수 있습니다.</p>
+                <p>② 고의적 훼손, 절도 등 범죄 행위는 수사기관에 신고될 수 있습니다.</p>
+
+                <h4 class="privacy-article">제6조 (이용 제한 및 퇴장)</h4>
+                <p>① 회사는 다음의 경우 회원을 퇴장 조치할 수 있으며, 이 경우 환불은 별도의 <b>「환불 규정」</b>에 따릅니다.</p>
+                <p>1. 안전수칙 위반으로 타 이용자에게 피해를 주는 경우<br>2. 입장 제한 견종을 허위 기재한 경우<br>3. 관리자 및 직원에게 폭언·욕설·성추행 등을 행한 경우(산업안전보건법 시행규칙 제41조)<br>4. 본 수칙의 기타 조항을 중대하게 위반한 경우</p>
+                <p>② 회사는 중대한 규정 위반으로 퇴장 조치된 회원의 향후 이용을 제한할 수 있으며, 이 경우 제한 사실·사유·기간을 앱 알림·이메일 등을 통해 해당 회원에게 통지합니다.</p>
+                <p>③ 이용 제한에 대해 회원은 통지일로부터 14일 이내에 서면·이메일로 이의를 제기할 수 있으며, 회사는 이의 제기의 정당성을 검토하여 조치합니다.</p>
+
+                <h4 class="privacy-article">제7조 (야외 시설 이용)</h4>
+                <p>① 야외 공간의 경사로·벤치·조경물 등 시설물 이용 시 회원의 주의 의무가 우선됩니다.</p>
+                <p>② 프라이빗 존 이용 시 만 10세 미만 어린이를 동반하는 경우 보호자의 주의 감독이 필수이며, 보호자의 주의 의무 위반으로 발생한 사고에 대해 회사는 책임을 지지 않습니다. 단, 시설의 명백한 하자 또는 회사의 고의·중대한 과실로 인한 사고는 예외로 합니다.</p>
+
+                <h4 class="privacy-article">제8조 (음식물)</h4>
+                <p>본 시설 내 외부 음식의 반입은 금지됩니다. 음식·음료 판매는 본 앱을 통한 결제 범위에 포함되지 않으며, 별도의 시설 내 매장 규정에 따릅니다.</p>
+
+                <h4 class="privacy-article">제9조 (기타)</h4>
+                <p>본 수칙에 명시되지 않은 사항은 시설 내 게시된 '공원 및 운동장 이용 규칙' 및 관계 법령을 따릅니다.</p>
+
+                <h4 class="privacy-article">부칙</h4>
+                <p>본 수칙은 <b>2026년 6월 1일</b>부터 시행합니다.</p>
+            </div>
+            <div style="padding: 14px 22px 20px; border-top: 1px solid rgba(0,0,0,0.06);">
+                <button class="primary-btn full-width" onclick="agreeSafetyFromModal()" style="padding: 14px; font-size: 0.95rem;">동의하고 닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 구매 확인 모달 (당일권 / 대관 공용) -->
+    <div id="purchase-guide-modal" class="modal-overlay hidden" style="z-index: 1200; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5);">
+        <div class="modal-box bg-white" style="width: 92%; max-width: 520px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); max-height: 85vh; display: flex; flex-direction: column; overflow: hidden;">
+            <div class="flex-between flex-align-center" style="padding: 20px 22px 14px; border-bottom: 1px solid rgba(0,0,0,0.06);">
+                <h3 id="purchase-guide-title" class="m-0 font-bold" style="font-size: 1.15rem; color: #1C1C1E;">이용 안내</h3>
+                <i class="ph ph-x pointer" style="font-size: 1.4rem; color: #888;" onclick="closePurchaseGuideModal()"></i>
+            </div>
+            <div id="purchase-guide-body" style="padding: 18px 22px 8px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch;"></div>
+            <div style="padding: 14px 22px 20px; border-top: 1px solid rgba(0,0,0,0.06);">
+                <label class="terms-check-row" onclick="event.stopPropagation()" style="margin-bottom: 12px;">
+                    <input type="checkbox" id="purchase-guide-check" onchange="togglePurchaseGuideBtn()">
+                    <span class="terms-check-label">위 내용을 모두 확인하였으며 준수에 동의합니다.</span>
+                </label>
+                <button id="purchase-guide-confirm-btn" class="primary-btn full-width disabled" onclick="confirmPurchaseGuide()" style="padding: 14px; font-size: 0.95rem;" disabled>결제 진행하기</button>
             </div>
         </div>
     </div>
