@@ -2929,17 +2929,16 @@ function closePurchaseHistoryModal() {
 function cancelPurchase(purchaseId) {
     const item = (DB.purchaseHistory || []).find(p => p.id === purchaseId);
     if (!item) return;
-    showAlert('예약 취소',
+    showConfirm('예약 취소',
         `<b>${item.type}</b> 예약을 취소하시겠습니까?<br><br>` +
         `<span class="text-sm text-gray">환불은 환불 규정에 따라 처리됩니다.<br>문의: 031-287-4600</span>`,
         function() {
             item.status = '취소됨';
-            // 당일권이 아직 사용 전이면 activeTicket도 취소
             if (DB.activeTicket && DB.activeTicket.status === '결제대기') {
                 DB.activeTicket = null;
             }
             showToast('예약이 취소되었습니다', 'x-circle');
-            openPurchaseHistoryModal(); // 목록 새로고침
+            openPurchaseHistoryModal();
         }
     );
 }
