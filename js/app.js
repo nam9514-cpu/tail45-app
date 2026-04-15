@@ -2268,11 +2268,38 @@ function showAlert(title, msg, showExtendBtnOrCallback) {
 
 function closeModal() {
     if(els.modal) els.modal.classList.add('hidden');
+    // 확인 다이얼로그 상태 정리
+    const confirmRow = document.getElementById('alert-confirm-row');
+    if (confirmRow) confirmRow.classList.add('hidden');
+    if (els.btnModalClose) els.btnModalClose.classList.remove('hidden');
     if (_alertCloseCallback) {
         var cb = _alertCloseCallback;
         _alertCloseCallback = null;
         setTimeout(cb, 200);
     }
+}
+
+function showConfirm(title, msg, onYes) {
+    if (!els.modal) return;
+    els.modalTitle.innerText = title;
+    els.modalMsg.innerHTML = msg;
+    if (els.btnAlertExtend) els.btnAlertExtend.classList.add('hidden');
+    if (els.btnModalClose) els.btnModalClose.classList.add('hidden');
+    const confirmRow = document.getElementById('alert-confirm-row');
+    const btnYes = document.getElementById('btn-alert-confirm');
+    if (confirmRow) confirmRow.classList.remove('hidden');
+    if (btnYes) {
+        btnYes.onclick = function() {
+            // 확인 UI를 먼저 정리한 뒤 콜백 실행
+            if (els.modal) els.modal.classList.add('hidden');
+            if (confirmRow) confirmRow.classList.add('hidden');
+            if (els.btnModalClose) els.btnModalClose.classList.remove('hidden');
+            _alertCloseCallback = null;
+            if (typeof onYes === 'function') setTimeout(onYes, 200);
+        };
+    }
+    _alertCloseCallback = null;
+    els.modal.classList.remove('hidden');
 }
 
 function handleChangePassword() {
@@ -2842,13 +2869,11 @@ function confirmPurchaseGuide() {
 
 // ===== 회원 탈퇴 =====
 function handleWithdraw() {
-    showAlert('회원 탈퇴',
+    showConfirm('회원 탈퇴',
         '정말 탈퇴하시겠습니까?<br><br>' +
         '<span class="text-sm text-gray">' +
-        '탈퇴 시 모든 개인정보 및 이용권, 포인트가 삭제되며<br>' +
-        '복구할 수 없습니다.<br><br>' +
-        '탈퇴를 원하시면 고객센터(031-287-4600)로<br>' +
-        '연락해 주시거나 아래 확인을 눌러주세요.' +
+        '탈퇴 시 모든 개인정보 및 이용권, 포인트가<br>' +
+        '삭제되며 복구할 수 없습니다.' +
         '</span>',
         function() {
             DB.user = null;
