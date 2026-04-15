@@ -3026,12 +3026,10 @@ function deletePet() {
     const idx = parseInt(document.getElementById('edit-pet-idx')?.value);
     if (isNaN(idx) || !DB.pets[idx]) return;
     const petName = DB.pets[idx].name || '반려견';
-    showAlert('반려견 삭제', `<b>${petName}</b>을(를) 삭제하시겠습니까?<br><span class="text-sm text-gray">삭제 후에는 복구할 수 없습니다.</span>`, function() {
-        DB.pets.splice(idx, 1);
-        closePetEditModal();
-        updateProfileUI();
-        showToast(`${petName} 삭제 완료`, 'trash');
-    });
+    DB.pets.splice(idx, 1);
+    closePetEditModal();
+    updateProfileUI();
+    showToast(`${petName} 삭제 완료`, 'trash');
 }
 
 // ===== 비밀번호 찾기 =====
