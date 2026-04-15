@@ -290,6 +290,11 @@ const DB = {
     ],
     tickets: [],
     activeTicket: null,
+    purchaseHistory: [
+        { id: 'PH001', type: '당일권', date: '2026-03-27', amount: 12000, pets: ['초코'], status: '사용완료' },
+        { id: 'PH002', type: 'A동 대관', date: '2026-03-20', amount: 50000, duration: '1시간', status: '사용완료' },
+        { id: 'PH003', type: '당일권', date: '2026-03-10', amount: 12000, pets: ['초코','맥스'], status: '사용완료' }
+    ],
     registeredUsers: [
         // 묵시적으로 가입된 데모 계정
         { phone: '01012345678', password: 'password1!', name: '현욱', code: 'm20240101demo00000001' }
@@ -1442,11 +1447,33 @@ function handleDaypassPurchase() {
         expiresAt: null
     };
 
+    // 구매내역 저장 + 포인트 적립 (당일권 120P)
+    const DAYPASS_POINT = 120;
+    if (!DB.purchaseHistory) DB.purchaseHistory = [];
+    DB.purchaseHistory.unshift({
+        id: 'PH' + Date.now(),
+        type: '당일권',
+        date: dpState.selectedDate,
+        amount: 12000,
+        pets: petNames,
+        status: '사용대기'
+    });
+    DB.user.pointBalance = (DB.user.pointBalance || 0) + DAYPASS_POINT;
+    if (!DB.user.pointHistory) DB.user.pointHistory = [];
+    DB.user.pointHistory.unshift({
+        id: Date.now(),
+        type: '적립',
+        desc: '당일권 구매 적립',
+        date: new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }),
+        amount: `+${DAYPASS_POINT}`
+    });
+
     showAlert("당일권 구매 완료",
         `당일권이 발급되었습니다.<br><br>` +
         `<b>이용 날짜:</b> ${parseInt(m)}월 ${parseInt(d)}일 (${dayName})<br>` +
         `<b>입장 반려견:</b> ${petNames.join(', ')} (${petNames.length}마리)<br><br>` +
         `선택한 날짜의 영업 시간 동안 운동장을<br>자유롭게 이용하실 수 있습니다.<br><br>` +
+        `<span class="text-primary font-bold">+${DAYPASS_POINT}P 적립 완료!</span><br>` +
         `<span class="text-sm text-gray">영업 종료 시 QR이 자동 만료됩니다.</span>`
     );
 
@@ -1829,6 +1856,27 @@ function handleReservationSubmit() {
     const dateObj = new Date(parseInt(y), parseInt(m)-1, parseInt(d));
     const dayName = dayNames[dateObj.getDay()];
 
+    // 구매내역 저장 + 포인트 적립 (대관 500P)
+    const RSV_POINT = 500;
+    if (!DB.purchaseHistory) DB.purchaseHistory = [];
+    DB.purchaseHistory.unshift({
+        id: 'PH' + Date.now(),
+        type: `${rsvState.building}동 대관`,
+        date: rsvState.selectedDate,
+        amount: 50000,
+        duration: `${rsvState.duration}시간`,
+        status: '예약접수'
+    });
+    DB.user.pointBalance = (DB.user.pointBalance || 0) + RSV_POINT;
+    if (!DB.user.pointHistory) DB.user.pointHistory = [];
+    DB.user.pointHistory.unshift({
+        id: Date.now(),
+        type: '적립',
+        desc: `${rsvState.building}동 대관 예약 적립`,
+        date: new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }),
+        amount: `+${RSV_POINT}`
+    });
+
     showAlert("예약 신청 완료",
         `${rsvState.building}동 대관 예약이 접수되었습니다.<br><br>` +
         `<b>대관:</b> ${rsvState.building}동<br>` +
@@ -1838,7 +1886,8 @@ function handleReservationSubmit() {
         `<b>보호자:</b> ${rsvState.guardianCount}명<br>` +
         `<b>반려견:</b> ${rsvState.petCount}마리<br>` +
         (memo ? `<b>메모:</b> ${memo}<br>` : '') +
-        `<br>관리자 확인 후 확정 안내 드리겠습니다.`
+        `<br><span class="text-primary font-bold">+${RSV_POINT}P 적립 완료!</span><br>` +
+        `<span class="text-sm text-gray">관리자 확인 후 확정 안내 드리겠습니다.</span>`
     );
 
     if (typeof showToast === 'function') showToast('예약이 접수되었습니다', 'calendar-check');
@@ -2789,4 +2838,224 @@ function confirmPurchaseGuide() {
     } else if (type === 'reservation') {
         handleReservationSubmit();
     }
+}
+
+// ===== 회원 탈퇴 =====
+function handleWithdraw() {
+    showAlert('회원 탈퇴',
+        '정말 탈퇴하시겠습니까?<br><br>' +
+        '<span class="text-sm text-gray">' +
+        '탈퇴 시 모든 개인정보 및 이용권, 포인트가 삭제되며<br>' +
+        '복구할 수 없습니다.<br><br>' +
+        '탈퇴를 원하시면 고객센터(031-287-4600)로<br>' +
+        '연락해 주시거나 아래 확인을 눌러주세요.' +
+        '</span>',
+        function() {
+            DB.user = null;
+            DB.pets = [];
+            DB.activeTicket = null;
+            DB.purchaseHistory = [];
+            showToast('탈퇴 처리가 완료되었습니다', 'check-circle');
+            switchView('view-auth');
+        }
+    );
+}
+
+// ===== 구매내역 =====
+function openPurchaseHistoryModal() {
+    const listEl = document.getElementById('purchase-history-list');
+    if (!listEl) return;
+    const history = DB.purchaseHistory || [];
+    if (history.length === 0) {
+        listEl.innerHTML = '<p class="text-center text-gray text-sm" style="padding: 40px 0;">구매내역이 없습니다.</p>';
+    } else {
+        const statusColor = { '사용완료': '#999', '사용중': 'var(--primary)', '예약확정': '#3B82F6', '예약접수': '#F59E0B', '사용대기': '#3B82F6', '취소됨': '#EF4444' };
+        listEl.innerHTML = history.map((item, idx) => {
+            const [y, m, d] = (item.date || '').split('-');
+            const dateStr = y ? `${parseInt(m)}월 ${parseInt(d)}일 (${y})` : item.date;
+            const amountStr = item.amount ? item.amount.toLocaleString() + '원' : '';
+            const sub = item.pets ? `반려견: ${item.pets.join(', ')}` : (item.duration ? `이용: ${item.duration}` : '');
+            const color = statusColor[item.status] || '#999';
+            const canCancel = item.status === '예약접수' || item.status === '예약확정' || item.status === '사용대기';
+            const cancelBtn = canCancel
+                ? `<button onclick="cancelPurchase('${item.id}')" style="margin-top:10px; border:1px solid #EF4444; background:none; color:#EF4444; border-radius:8px; padding:6px 14px; font-size:0.8rem; font-weight:600; cursor:pointer;">예약 취소</button>`
+                : '';
+            return `
+            <div style="background: #FAFAFA; border-radius: 14px; padding: 16px; margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.05);">
+                <div class="flex-between flex-align-center mb-1">
+                    <span class="font-bold" style="font-size: 0.98rem; color: #1C1C1E;">${item.type}</span>
+                    <span class="font-bold" style="color: ${color}; font-size: 0.82rem;">${item.status}</span>
+                </div>
+                <div class="flex-between flex-align-center">
+                    <span class="text-sm text-gray">${dateStr}${sub ? ' · ' + sub : ''}</span>
+                    <span class="font-bold" style="color: var(--primary); font-size: 0.95rem;">${amountStr}</span>
+                </div>
+                ${cancelBtn}
+            </div>`;
+        }).join('');
+    }
+    openModalById('purchase-history-modal');
+}
+
+function closePurchaseHistoryModal() {
+    closeModalById('purchase-history-modal');
+}
+
+function cancelPurchase(purchaseId) {
+    const item = (DB.purchaseHistory || []).find(p => p.id === purchaseId);
+    if (!item) return;
+    showAlert('예약 취소',
+        `<b>${item.type}</b> 예약을 취소하시겠습니까?<br><br>` +
+        `<span class="text-sm text-gray">환불은 환불 규정에 따라 처리됩니다.<br>문의: 031-287-4600</span>`,
+        function() {
+            item.status = '취소됨';
+            // 당일권이 아직 사용 전이면 activeTicket도 취소
+            if (DB.activeTicket && DB.activeTicket.status === '결제대기') {
+                DB.activeTicket = null;
+            }
+            showToast('예약이 취소되었습니다', 'x-circle');
+            openPurchaseHistoryModal(); // 목록 새로고침
+        }
+    );
+}
+
+// ===== 반려견 추가 (마이페이지) =====
+function openAddPetFromMypage() {
+    ['new-pet-name','new-pet-year','new-pet-month','new-pet-weight','breed-input-newpet'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    const breedHidden = document.getElementById('new-pet-breed');
+    if (breedHidden) breedHidden.value = '';
+    ['new-pet-gender-male','new-pet-gender-female'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = false;
+    });
+    ['new-pet-gender-male-card','new-pet-gender-female-card'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.style.borderColor = '#E5E7EB'; el.style.color = '#555'; el.style.background = '#FAFAFA'; }
+    });
+    ['new-pet-neutered','new-pet-vaccinated'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = false;
+    });
+    ['new-pet-neutered-card','new-pet-vaccinated-card'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.style.borderColor = '#E5E7EB'; el.style.color = '#555'; el.style.background = '#FAFAFA'; }
+    });
+    openModalById('pet-add-modal');
+}
+
+function closeAddPetModal() {
+    closeModalById('pet-add-modal');
+}
+
+function selectNewPetGender(gender) {
+    ['male','female'].forEach(g => {
+        const card = document.getElementById(`new-pet-gender-${g}-card`);
+        const radio = document.getElementById(`new-pet-gender-${g}`);
+        if (!card || !radio) return;
+        if (g === gender) {
+            radio.checked = true;
+            card.style.borderColor = 'var(--primary)';
+            card.style.color = 'var(--primary)';
+            card.style.background = 'rgba(0,168,107,0.06)';
+        } else {
+            radio.checked = false;
+            card.style.borderColor = '#E5E7EB';
+            card.style.color = '#555';
+            card.style.background = '#FAFAFA';
+        }
+    });
+}
+
+function toggleNewPetCheck(field) {
+    const cb = document.getElementById(`new-pet-${field}`);
+    const card = document.getElementById(`new-pet-${field}-card`);
+    if (!cb || !card) return;
+    cb.checked = !cb.checked;
+    if (cb.checked) {
+        card.style.borderColor = 'var(--primary)';
+        card.style.color = 'var(--primary)';
+        card.style.background = 'rgba(0,168,107,0.06)';
+    } else {
+        card.style.borderColor = '#E5E7EB';
+        card.style.color = '#555';
+        card.style.background = '#FAFAFA';
+    }
+}
+
+function saveNewPet() {
+    const name = (document.getElementById('new-pet-name')?.value || '').trim();
+    const weight = (document.getElementById('new-pet-weight')?.value || '').trim();
+    if (!name) { showAlert('입력 필요', '반려견 이름을 입력해주세요.'); return; }
+    if (!weight) { showAlert('입력 필요', '체중을 입력해주세요.'); return; }
+
+    const breed = document.getElementById('new-pet-breed')?.value.trim() || document.getElementById('breed-input-newpet')?.value.trim() || '';
+    const y = (document.getElementById('new-pet-year')?.value || '').trim();
+    const m = (document.getElementById('new-pet-month')?.value || '').trim();
+    let ageParts = [];
+    if (y) ageParts.push(`${y}살`);
+    if (m) ageParts.push(`${m}개월`);
+
+    const maleChecked = document.getElementById('new-pet-gender-male')?.checked;
+    const femaleChecked = document.getElementById('new-pet-gender-female')?.checked;
+    const neutered = document.getElementById('new-pet-neutered')?.checked || false;
+    const vaccinated = document.getElementById('new-pet-vaccinated')?.checked || false;
+
+    const newPet = {
+        id: 'pet_' + Date.now(),
+        name,
+        type: breed,
+        age: ageParts.join(' ') || '',
+        weight: `${weight}kg`,
+        size: normalizePetSize(parseFloat(weight)),
+        gender: maleChecked ? 'male' : (femaleChecked ? 'female' : ''),
+        neutered,
+        vaccinated
+    };
+
+    DB.pets.push(newPet);
+    closeAddPetModal();
+    updateProfileUI();
+    showAlert('등록 완료', `${name}가(이) 성공적으로 등록되었습니다.`);
+}
+
+// ===== 반려견 삭제 =====
+function deletePet() {
+    const idx = parseInt(document.getElementById('edit-pet-idx')?.value);
+    if (isNaN(idx) || !DB.pets[idx]) return;
+    const petName = DB.pets[idx].name || '반려견';
+    showAlert('반려견 삭제', `<b>${petName}</b>을(를) 삭제하시겠습니까?<br><span class="text-sm text-gray">삭제 후에는 복구할 수 없습니다.</span>`, function() {
+        DB.pets.splice(idx, 1);
+        closePetEditModal();
+        updateProfileUI();
+        showToast(`${petName} 삭제 완료`, 'trash');
+    });
+}
+
+// ===== 비밀번호 찾기 =====
+function openFindPasswordModal() {
+    const emailEl = document.getElementById('find-pw-email');
+    if (emailEl) emailEl.value = '';
+    openModalById('find-password-modal');
+}
+
+function closeFindPasswordModal() {
+    closeModalById('find-password-modal');
+}
+
+function handleFindPassword() {
+    const emailEl = document.getElementById('find-pw-email');
+    const email = emailEl ? emailEl.value.trim() : '';
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showAlert('입력 오류', '올바른 이메일 주소를 입력해주세요.');
+        return;
+    }
+    closeFindPasswordModal();
+    showAlert('발송 완료',
+        `<b>${email}</b>로 임시 비밀번호를 발송했습니다.<br><br>` +
+        `이메일을 확인하신 후, 로그인하여<br>비밀번호를 변경해주세요.<br><br>` +
+        `<span class="text-sm text-gray">이메일이 오지 않는 경우 고객센터(031-287-4600)로 문의해주세요.</span>`
+    );
 }
