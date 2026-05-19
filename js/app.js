@@ -2393,34 +2393,46 @@ function closeAccountEditModal() {
     document.getElementById('account-edit-modal').classList.add('hidden');
 }
 
-function saveAccountEdit() {
-    const name = document.getElementById('edit-acc-name').value.trim();
-    const phone = document.getElementById('edit-acc-phone').value.trim().replace(/[^0-9]/g, '');
+async function saveAccountEdit() {
     const addressBase = document.getElementById('edit-acc-address').value.trim();
     const addressDetail = document.getElementById('edit-acc-address-detail').value.trim();
-    const address = addressDetail ? `${addressBase} ${addressDetail}` : addressBase;
-
-    if (!name) {
-        showAlert('입력 오류', '이름은 필수 항목입니다.');
-        return;
-    }
-
     const isSocial = DB.user.provider === 'kakao' || DB.user.provider === 'naver';
+    const email = (!isSocial) ? document.getElementById('edit-acc-email').value.trim() : null;
 
-    DB.user.name = name;
-    DB.user.phone = phone || DB.user.phone;
-    DB.user.address = addressBase || DB.user.address;
-    DB.user.addressDetail = addressDetail;
+    const token = localStorage.getItem('tail45_token');
+    if (!token) { showAlert('오류', '로그인 정보가 없습니다. 다시 로그인해주세요.'); return; }
 
-    // 이메일 로그인 회원만 이메일 업데이트
-    if (!isSocial) {
-        const email = document.getElementById('edit-acc-email').value.trim();
+    const btn = document.querySelector('#account-edit-modal .primary-btn');
+    if (btn) { btn.disabled = true; btn.textContent = '저장 중...'; }
+
+    try {
+        const payload = { address1: addressBase, address2: addressDetail };
+        if (email !== null) payload.email = email;
+
+        const res = await fetch(API_BASE + '/api/user/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+            showAlert('저장 실패', data.error || '정보 수정에 실패했습니다.');
+            return;
+        }
+
+        DB.user.address = addressBase;
+        DB.user.addressDetail = addressDetail;
         if (email) DB.user.email = email;
-    }
 
-    closeAccountEditModal();
-    updateProfileUI(); // 프로필 화면 즉시 반영
-    showAlert('저장 완료', '계정 정보가 성공적으로 수정되었습니다.');
+        closeAccountEditModal();
+        updateProfileUI();
+        showAlert('저장 완료', '계정 정보가 성공적으로 수정되었습니다.');
+    } catch (e) {
+        showAlert('연결 오류', '서버에 연결할 수 없습니다.');
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '저장'; }
+    }
 }
 
 // 다음 우편번호 서비스 주소 검색 (팝업 방식)
