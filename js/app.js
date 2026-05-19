@@ -2301,7 +2301,6 @@ function handleChangePassword() {
 
 function openPasswordChangeModal() {
     if(!DB.user) return;
-    document.getElementById('change-pwd-current').value = '';
     document.getElementById('change-pwd-new').value = '';
     document.getElementById('change-pwd-confirm').value = '';
     document.getElementById('password-change-modal').classList.remove('hidden');
