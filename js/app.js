@@ -2311,19 +2311,12 @@ function closePasswordChangeModal() {
     document.getElementById('password-change-modal').classList.add('hidden');
 }
 
-function savePasswordChange() {
-    const current = document.getElementById('change-pwd-current').value.trim();
+async function savePasswordChange() {
     const newPwd = document.getElementById('change-pwd-new').value.trim();
     const confirm = document.getElementById('change-pwd-confirm').value.trim();
 
-    if (current !== DB.user.password) {
-        showAlert('인증 실패', '현재 비밀번호가 일치하지 않습니다.');
-        return;
-    }
-
-    const pwdRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
-    if (!pwdRegex.test(newPwd)) {
-        showAlert('보안 규칙', '비밀번호는 영문과 숫자를 포함하여 8자리 이상이어야 합니다.');
+    if (newPwd.length < 4) {
+        showAlert('비밀번호 오류', '비밀번호는 4자리 이상이어야 합니다.');
         return;
     }
 
@@ -2332,21 +2325,34 @@ function savePasswordChange() {
         return;
     }
 
-    DB.user.password = newPwd;
-    DB.user.passwordChanged = true;
+    const btn = document.querySelector('#password-change-modal .primary-btn');
+    if (btn) { btn.disabled = true; btn.textContent = '변경 중...'; }
 
-    // DB.registeredUsers 업데이트 (임시 데이터 연동 유지)
-    if(DB.registeredUsers) {
-        const idx = DB.registeredUsers.findIndex(u => u.phone === DB.user.phone);
-        if (idx !== -1) DB.registeredUsers[idx].password = newPwd;
+    try {
+        const res = await fetch(API_BASE + '/api/auth/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: DB.user.phone, newPassword: newPwd })
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+            showAlert('변경 실패', data.error || '비밀번호 변경에 실패했습니다.');
+            return;
+        }
+
+        DB.user.passwordChanged = true;
+
+        var pwdNotice = document.getElementById('home-pwd-notice');
+        if (pwdNotice) pwdNotice.remove();
+
+        closePasswordChangeModal();
+        showAlert('변경 완료', '비밀번호가 성공적으로 변경되었습니다.<br>이제 결제 및 예약이 가능합니다.');
+    } catch (e) {
+        showAlert('연결 오류', '서버에 연결할 수 없습니다.');
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '변경하기'; }
     }
-
-    // 홈 화면 비밀번호 변경 알림 제거
-    var pwdNotice = document.getElementById('home-pwd-notice');
-    if (pwdNotice) pwdNotice.remove();
-
-    closePasswordChangeModal();
-    showAlert('변경 완료', '비밀번호가 성공적으로 변경되었습니다.<br>이제 결제 및 예약이 가능합니다.');
 }
 
 function openAccountEditModal() {
