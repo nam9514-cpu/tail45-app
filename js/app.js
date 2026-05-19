@@ -2300,10 +2300,13 @@ function handleChangePassword() {
 }
 
 function openPasswordChangeModal() {
-    if(!DB.user) return;
-    document.getElementById('change-pwd-new').value = '';
-    document.getElementById('change-pwd-confirm').value = '';
-    document.getElementById('password-change-modal').classList.remove('hidden');
+    const modal = document.getElementById('password-change-modal');
+    if (!modal) { alert('모달 없음'); return; }
+    const newInput = document.getElementById('change-pwd-new');
+    const confirmInput = document.getElementById('change-pwd-confirm');
+    if (newInput) newInput.value = '';
+    if (confirmInput) confirmInput.value = '';
+    modal.classList.remove('hidden');
 }
 
 function closePasswordChangeModal() {
