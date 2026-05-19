@@ -2317,8 +2317,8 @@ async function savePasswordChange() {
     const newPwd = document.getElementById('change-pwd-new').value.trim();
     const confirm = document.getElementById('change-pwd-confirm').value.trim();
 
-    if (newPwd.length < 6 || !/\d/.test(newPwd)) {
-        showAlert('비밀번호 오류', '숫자를 포함한 6자리 이상 입력해주세요.');
+    if (newPwd.length < 6 || !/\d/.test(newPwd) || !/[A-Za-z]/.test(newPwd)) {
+        showAlert('비밀번호 오류', '영문과 숫자를 포함한 6자리 이상 입력해주세요.');
         return;
     }
 
