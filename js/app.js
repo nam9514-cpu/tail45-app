@@ -2318,7 +2318,7 @@ async function savePasswordChange() {
     const confirm = document.getElementById('change-pwd-confirm').value.trim();
 
     if (newPwd.length < 6 || !/\d/.test(newPwd)) {
-        showAlert('비밀번호 오류', '비밀번호는 숫자를 포함하여 6자리 이상이어야 합니다.');
+        showAlert('비밀번호 오류', '숫자를 포함한 6자리 이상 입력해주세요.');
         return;
     }
 
