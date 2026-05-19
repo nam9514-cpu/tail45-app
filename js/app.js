@@ -776,7 +776,9 @@ function injectMockControls() {
     if (els.btnMockFF) els.btnMockFF.addEventListener('click', skipTime);
 }
 
-function handleLogin() {
+const API_BASE = 'https://tail45.petscom45.workers.dev';
+
+async function handleLogin() {
     const rawPhone = document.getElementById('login-phone').value.trim();
     const pwd = document.getElementById('login-password').value.trim();
 
@@ -795,75 +797,66 @@ function handleLogin() {
     }
     // ====================================
 
-    const phone = rawPhone.replace(/[^0-9]/g, '');
+    // 로딩 표시
+    const loginBtn = document.querySelector('#auth-login-form .primary-btn');
+    if (loginBtn) { loginBtn.disabled = true; loginBtn.textContent = '로그인 중...'; }
 
-    // ======== 기존 고객 (Legacy) 로그인 ========
-    // 전화번호(ID) + 이름(비밀번호 대신) 매칭으로 기존 고객 자동 인증
-    if (typeof EXISTING_MEMBERS !== 'undefined' && phone) {
-        const normalizedPhone = phone.startsWith('0') ? phone : '0' + phone;
-        const legacyMember = EXISTING_MEMBERS.find(m => m.phone === normalizedPhone);
-        if (legacyMember) {
-            // 비밀번호 필드에 이름을 입력하여 본인 확인
-            if (pwd === legacyMember.name) {
-                DB.user.name = legacyMember.name;
-                DB.user.phone = legacyMember.phone;
-                DB.user.password = legacyMember.name;
-                DB.user.code = legacyMember.code;
-                DB.user.email = legacyMember.email;
-                DB.user.address = legacyMember.address || '미등록';
-                DB.user.gender = legacyMember.gender;
-                DB.user.birth = legacyMember.birth;
-                DB.user.passwordChanged = false;
+    try {
+        const res = await fetch(API_BASE + '/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: rawPhone, password: pwd })
+        });
 
-                // 해당 고객의 반려견 데이터 자동 로드
-                if (typeof EXISTING_DOGS !== 'undefined') {
-                    const legacyDogs = EXISTING_DOGS.filter(d => d.ownerCode === legacyMember.code);
-                    if (legacyDogs.length > 0) {
-                        DB.pets = legacyDogs.map((d, i) => ({
-                            id: `P_LEGACY_${i+1}`,
-                            name: d.name || '이름 미등록',
-                            size: d.type || '기타',
-                            age: d.birth ? calcDogAge(d.birth) : '미등록',
-                            weight: d.weight ? d.weight + 'kg' : '미등록',
-                            gender: d.gender || '',
-                            legacySize: d.size || ''
-                        }));
-                    }
-                }
+        const data = await res.json();
 
-                loginSuccess();
-                const petCount = DB.pets.length;
-                const petMsg = petCount > 0 ? `<br>반려견 <b>${petCount}마리</b>의 정보도 함께 불러왔습니다.` : '';
-                showAlert('기존 고객 로그인 성공 🐾', nameWithHonorific(legacyMember.name) + ', 다시 만나서 반갑습니다!' + petMsg + '<br><br><span style="font-size:0.8rem;color:#888;">💡 마이페이지에서 비밀번호를 설정하시면 다음부터 비밀번호로 로그인하실 수 있습니다.</span>');
-                return;
-            } else {
-                // 전화번호는 매칭되지만 이름이 다른 경우
-                showAlert('기존 고객 인증 안내', '등록된 전화번호입니다.<br>비밀번호 란에 <b>가입하신 이름</b>을 입력해주세요.<br><br><span style="font-size:0.8rem;color:#888;">예) 홍길동</span>');
-                return;
-            }
+        if (!res.ok || !data.success) {
+            showAlert('로그인 실패', data.error || '로그인에 실패했습니다. 다시 시도해주세요.');
+            return;
         }
+
+        // 토큰 저장
+        localStorage.setItem('tail45_token', data.token);
+
+        // 사용자 정보 저장
+        const u = data.user;
+        DB.user.name = u.name;
+        DB.user.phone = u.phone;
+        DB.user.code = u.code;
+        DB.user.email = u.email || '';
+        DB.user.address = u.address || '미등록';
+        DB.user.gender = u.gender || '';
+        DB.user.pointBalance = u.points || 0;
+        DB.user.passwordChanged = !data.isFirstLogin;
+
+        // 반려견 정보 저장
+        if (data.pets && data.pets.length > 0) {
+            DB.pets = data.pets.map((d, i) => ({
+                id: d.id || ('P_' + i),
+                name: d.name || '이름 미등록',
+                size: d.size || d.type || '기타',
+                age: d.birth ? calcDogAge(d.birth) : '미등록',
+                weight: d.weight ? d.weight + 'kg' : '미등록',
+                gender: d.gender || '',
+            }));
+        }
+
+        loginSuccess();
+
+        const petCount = DB.pets.length;
+        const petMsg = petCount > 0 ? '<br>반려견 <b>' + petCount + '마리</b>의 정보도 함께 불러왔습니다.' : '';
+
+        if (data.isFirstLogin) {
+            showAlert('로그인 성공', nameWithHonorific(u.name) + ', 다시 만나서 반갑습니다!' + petMsg + '<br><br><span style="font-size:0.8rem;color:#888;">💡 마이페이지에서 비밀번호를 설정하시면 다음부터 비밀번호로 로그인하실 수 있습니다.</span>');
+        } else {
+            showAlert('로그인 성공', nameWithHonorific(u.name) + ', 환영합니다!' + petMsg);
+        }
+
+    } catch (e) {
+        showAlert('연결 오류', '서버에 연결할 수 없습니다.<br>인터넷 연결을 확인해주세요.');
+    } finally {
+        if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = '로그인'; }
     }
-    // ====================================
-
-    // ======== 신규 가입 회원 로그인 ========
-    const user = DB.registeredUsers.find(u => (u.phone === phone || u.email === rawPhone) && u.password === pwd);
-
-    if(!user) {
-        showAlert('로그인 실패', '가입된 정보가 없거나 비밀번호가 일치하지 않습니다.<br>입력하신 내용을 다시 확인해주세요.');
-        return;
-    }
-
-    DB.user.name = user.name;
-    DB.user.phone = user.phone;
-    DB.user.password = user.password;
-    DB.user.code = user.code || generateMemberCode();
-    DB.user.username = user.username ? '@' + user.username : DB.user.username;
-    DB.user.email = user.email || DB.user.email;
-    DB.user.address = user.address || DB.user.address;
-    DB.user.passwordChanged = true;
-
-    loginSuccess();
-    showAlert('로그인 성공', nameWithHonorific(user.name) + ', 환영합니다!<br>Tail45 앱 환경에 접속하셨습니다.');
 }
 
 
