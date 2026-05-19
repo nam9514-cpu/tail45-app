@@ -2372,17 +2372,18 @@ function openAccountEditModal() {
     const emailWrapper = document.getElementById('edit-acc-email-wrapper');
 
     if (isSocial) {
-        // 간편 로그인 회원: 이메일 칸 비활성화 + 안내문 표시
         const providerName = DB.user.provider === 'kakao' ? '카카오' : '네이버';
         emailInput.value = `${providerName} 간편가입`;
         emailInput.disabled = true;
-        emailWrapper.style.opacity = '0.6';
+        emailInput.style.color = '#888';
+        emailWrapper.style.background = '#f0f0f0';
+        emailWrapper.style.opacity = '1';
         emailNote.classList.remove('hidden');
     } else {
-        // 이메일 로그인 회원: 이메일 수정 가능
         emailInput.value = DB.user.email || '';
         emailInput.disabled = false;
-        emailWrapper.style.opacity = '1';
+        emailInput.style.color = '';
+        emailWrapper.style.background = '#f8f9fa';
         emailNote.classList.add('hidden');
     }
 

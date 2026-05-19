@@ -1164,17 +1164,19 @@
             <div class="pet-form-block p-1">
                 <div class="input-group">
                     <label>이름</label>
-                    <div class="input-wrapper" style="background:#f8f9fa;">
-                        <i class="ph ph-user"></i>
-                        <input type="text" id="edit-acc-name" placeholder="이름">
+                    <div class="input-wrapper" style="background:#f0f0f0;">
+                        <i class="ph ph-user" style="color:#aaa;"></i>
+                        <input type="text" id="edit-acc-name" placeholder="이름" readonly style="cursor:default; color:#888;">
                     </div>
+                    <p class="input-hint" style="color:#aaa;">이름은 변경할 수 없습니다.</p>
                 </div>
                 <div class="input-group">
                     <label>전화번호</label>
-                    <div class="input-wrapper" style="background:#f8f9fa;">
-                        <i class="ph ph-phone"></i>
-                        <input type="text" id="edit-acc-phone" placeholder="01012345678">
+                    <div class="input-wrapper" style="background:#f0f0f0;">
+                        <i class="ph ph-phone" style="color:#aaa;"></i>
+                        <input type="text" id="edit-acc-phone" placeholder="01012345678" readonly style="cursor:default; color:#888;">
                     </div>
+                    <p class="input-hint" style="color:#aaa;">전화번호는 변경할 수 없습니다.</p>
                 </div>
                 <div class="input-group">
                     <label>이메일</label>
@@ -1182,7 +1184,7 @@
                         <i class="ph ph-envelope-simple"></i>
                         <input type="email" id="edit-acc-email" placeholder="example@email.com">
                     </div>
-                    <p id="edit-acc-email-note" class="text-xs text-danger mt-1 hidden m-0" style="word-break: keep-all;">간편 로그인 회원은 이메일을 변경할 수 없습니다.</p>
+                    <p id="edit-acc-email-note" class="text-xs text-gray mt-1 hidden m-0" style="word-break: keep-all;">카카오/네이버 간편 로그인 회원은 이메일을 변경할 수 없습니다.</p>
                 </div>
                 <div class="input-group mb-4">
                     <label>주소</label>
