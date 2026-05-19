@@ -825,9 +825,11 @@ async function handleLogin() {
         DB.user.code = u.code;
         DB.user.email = u.email || '';
         DB.user.address = u.address || '미등록';
+        DB.user.addressDetail = u.address2 || '';
         DB.user.gender = u.gender || '';
         DB.user.pointBalance = u.points || 0;
         DB.user.passwordChanged = !data.isFirstLogin;
+        DB.user.provider = u.provider || 'phone';
 
         // 반려견 정보 저장
         if (data.pets && data.pets.length > 0) {
