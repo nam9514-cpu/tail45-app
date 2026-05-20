@@ -284,17 +284,10 @@ const DB = {
             { id: 10, type: '적립', desc: '사전예약 리워드', date: '2026년 1월 1일', amount: '+2000' }
         ]
     },
-    pets: [
-        { id: 'P01', name: '초코', size: '소형견' },
-        { id: 'P02', name: '맥스', size: '대형견' }
-    ],
+    pets: [],
     tickets: [],
     activeTicket: null,
-    purchaseHistory: [
-        { id: 'PH001', type: '당일권', date: '2026-03-27', amount: 12000, pets: ['초코'], status: '사용완료' },
-        { id: 'PH002', type: 'A동 대관', date: '2026-03-20', amount: 50000, duration: '1시간', status: '사용완료' },
-        { id: 'PH003', type: '당일권', date: '2026-03-10', amount: 12000, pets: ['초코','맥스'], status: '사용완료' }
-    ],
+    purchaseHistory: [],
     registeredUsers: [
         // 묵시적으로 가입된 데모 계정
         { phone: '01012345678', password: 'password1!', name: '현욱', code: 'm20240101demo00000001' }
@@ -831,17 +824,15 @@ async function handleLogin() {
         DB.user.passwordChanged = !data.isFirstLogin;
         DB.user.provider = u.provider || 'phone';
 
-        // 반려견 정보 저장
-        if (data.pets && data.pets.length > 0) {
-            DB.pets = data.pets.map((d, i) => ({
-                id: d.id || ('P_' + i),
-                name: d.name || '이름 미등록',
-                size: d.size || d.type || '기타',
-                age: d.birth ? calcDogAge(d.birth) : '미등록',
-                weight: d.weight ? d.weight + 'kg' : '미등록',
-                gender: d.gender || '',
-            }));
-        }
+        // 반려견 정보 저장 (DB의 진실의 원천으로 항상 덮어쓰기)
+        DB.pets = (data.pets || []).map((d, i) => ({
+            id: d.id || ('P_' + i),
+            name: d.name || '이름 미등록',
+            size: d.size || d.type || '기타',
+            age: d.birth ? calcDogAge(d.birth) : '미등록',
+            weight: d.weight ? d.weight + 'kg' : '미등록',
+            gender: d.gender || '',
+        }));
 
         loginSuccess();
 
