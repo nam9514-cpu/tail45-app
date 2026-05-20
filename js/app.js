@@ -547,7 +547,7 @@ function signupPrevStep(currentStep) {
     if(currentStep > 1) goToSignupStep(currentStep - 1);
 }
 
-function handleSignupComplete() {
+async function handleSignupComplete() {
     const privacyCheck = document.getElementById('signup-privacy-check');
     if (!privacyCheck || !privacyCheck.checked) {
         showAlert('약관 동의 필요', '개인정보 처리방침에 동의해주세요.');
@@ -557,7 +557,6 @@ function handleSignupComplete() {
     const isSocial = !!pendingSocialProvider;
     const socialProfile = DB._socialProfile || {};
 
-    // 이메일/비밀번호는 이메일 가입 시에만 수집
     const email = isSocial
         ? (socialProfile.email || `${pendingSocialProvider}_${Date.now()}@tail45.social`)
         : document.getElementById('auth-email').value.trim();
@@ -567,123 +566,97 @@ function handleSignupComplete() {
     const phone = (document.getElementById('auth-phone').value.trim()).replace(/[^0-9]/g, '');
     const addressBase = document.getElementById('auth-address').value.trim();
     const addressDetail = document.getElementById('auth-address-detail').value.trim();
-    const address = addressDetail ? `${addressBase} ${addressDetail}` : addressBase;
 
-    if (!name) {
-        showAlert('입력 오류', '이름을 입력해주세요.');
-        return;
-    }
-    if (!addressBase) {
-        showAlert('입력 오류', '주소를 검색하여 입력해주세요.');
-        return;
-    }
-
-    // 중복 가입 체크 (이메일 가입만)
+    if (!name) { showAlert('입력 오류', '이름을 입력해주세요.'); return; }
+    if (!phone) { showAlert('입력 오류', '전화번호를 입력해주세요.'); return; }
+    if (!addressBase) { showAlert('입력 오류', '주소를 검색하여 입력해주세요.'); return; }
     if (!isSocial) {
-        const exists = DB.registeredUsers.find(u => u.email === email);
-        if(exists) {
-            showAlert('가입 안내', '이미 사용 중인 이메일입니다.');
+        if (!pwd || pwd.length < 6 || !/\d/.test(pwd) || !/[A-Za-z]/.test(pwd)) {
+            showAlert('비밀번호 오류', '비밀번호는 영문과 숫자를 포함한 6자리 이상이어야 합니다.');
             return;
         }
     }
 
-    const provider = isSocial ? pendingSocialProvider : 'email';
-    const memberCode = generateMemberCode();
-    const newUser = { phone, password: pwd, name, email, address, provider, code: memberCode };
-    DB.registeredUsers.push(newUser);
+    const provider = isSocial ? pendingSocialProvider : 'phone';
 
-    // DB.user 세션 업데이트
-    DB.user.name = name;
-    DB.user.phone = phone || '미등록';
-    DB.user.email = email;
-    DB.user.address = address || '미등록';
-    DB.user.provider = provider;
-    DB.user.code = memberCode;
-    DB.user.passwordChanged = true;
-
-    // ── 기존 고객 데이터 자동 연동 (전화번호 + 이름 매칭) ──
-    let legacyLinked = false;
-    if (typeof EXISTING_MEMBERS !== 'undefined' && phone) {
-        const normalizedPhone = phone.startsWith('0') ? phone : '0' + phone;
-        const legacyMember = EXISTING_MEMBERS.find(m => m.phone === normalizedPhone && m.name === name);
-        if (legacyMember) {
-            // 기존 주소가 있으면 자동 복원
-            if (legacyMember.address && !address) {
-                DB.user.address = legacyMember.address;
-            }
-            // 기존 반려견 데이터 자동 로드
-            const legacyDogs = (typeof EXISTING_DOGS !== 'undefined') ?
-                EXISTING_DOGS.filter(d => d.ownerCode === legacyMember.code) : [];
-            if (legacyDogs.length > 0) {
-                DB.pets = legacyDogs.map((d, i) => ({
-                    id: `P_LEGACY_${i+1}`,
-                    name: d.name || '이름 미등록',
-                    size: d.type || '기타',
-                    age: d.birth ? calcDogAge(d.birth) : '미등록',
-                    weight: d.weight ? d.weight + 'kg' : '미등록',
-                    gender: d.gender || '',
-                    legacySize: d.size || ''
-                }));
-                legacyLinked = true;
-            }
+    const petBlocks = document.querySelectorAll('.pet-form-block');
+    const pets = [];
+    petBlocks.forEach((block) => {
+        const pName = block.querySelector('.auth-petname')?.value.trim();
+        if (!pName) return;
+        const pBreed = block.querySelector('.auth-pet-breed')?.value.trim() || '';
+        const pWeight = parseFloat(block.querySelector('.auth-pet-weight')?.value || '') || null;
+        const pGenderEl = block.querySelector('.auth-pet-gender:checked');
+        const pGender = pGenderEl ? pGenderEl.value : '';
+        const pNeutered = block.querySelector('.auth-pet-neutered')?.checked || false;
+        let size = '소형견';
+        if (pWeight !== null) {
+            size = pWeight < 10 ? '소형견' : (pWeight < 25 ? '중형견' : '대형견');
         }
-    }
-
-    // 기존 데이터가 연동되지 않았으면 폼에 입력한 반려견 데이터 사용
-    if (!legacyLinked) {
-        const petBlocks = document.querySelectorAll('.pet-form-block');
-        const newPets = [];
-        petBlocks.forEach((block, index) => {
-            const pName = block.querySelector('.auth-petname').value.trim();
-            const pBreed = block.querySelector('.auth-pet-breed').value.trim();
-            const pAgeYear = block.querySelector('.auth-pet-age-year').value.trim();
-            const pAgeMonth = block.querySelector('.auth-pet-age-month').value.trim();
-            const pWeight = block.querySelector('.auth-pet-weight').value.trim();
-            const pGenderEl = block.querySelector('.auth-pet-gender:checked');
-            const pGender = pGenderEl ? pGenderEl.value : '미선택';
-            const pNeutered = block.querySelector('.auth-pet-neutered').checked;
-            const pVaccinated = block.querySelector('.auth-pet-vaccinated').checked;
-
-            if (pName) {
-                const petAgeStr = `${pAgeYear || 0}살 ${pAgeMonth || 0}개월`;
-                const petSize = pBreed || '기타';
-                newPets.push({
-                    id: `P_NEW_${index+1}`,
-                    name: pName,
-                    size: petSize,
-                    age: petAgeStr,
-                    weight: pWeight ? pWeight + 'kg' : '미등록',
-                    gender: pGender,
-                    neutered: pNeutered,
-                    vaccinated: pVaccinated
-                });
-            }
+        pets.push({
+            name: pName,
+            type: pBreed,
+            size,
+            gender: pGender,
+            weight: pWeight,
+            neut: pNeutered ? 1 : 0
         });
-        DB.pets = newPets;
-    }
+    });
 
-    const wasSocial = isSocial;
-    const socialName = wasSocial ? (pendingSocialProvider === 'kakao' ? '카카오' : '네이버') : '';
-
-    // 소셜 가입 플래그 정리
-    pendingSocialProvider = null;
-    delete DB._socialProfile;
-
-    if (wasSocial) {
-        // 소셜 가입자는 비밀번호가 없으므로 즉시 로그인 처리
-        if (legacyLinked) {
-            showAlert(`🎉 ${socialName} 가입 완료! (기존 고객 연동)`, nameWithHonorific(name) + ', 환영합니다!<br>이전 고객 정보와 반려견 <b>' + DB.pets.length + '마리</b>의 데이터가 자동으로 연동되었습니다.');
-        } else {
-            showAlert(`🎉 ${socialName} 가입 완료!`, nameWithHonorific(name) + ', 테일45 회원이 되신 것을 환영합니다!');
+    try {
+        const res = await fetch(API_BASE + '/api/auth/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name, phone, password: pwd, email,
+                address1: addressBase, address2: addressDetail,
+                provider, pets
+            })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+            showAlert('가입 실패', data.error || '회원가입에 실패했습니다.');
+            return;
         }
-        loginSuccess();
-    } else {
-        if (legacyLinked) {
-            showAlert('🎉 가입 완료! (기존 고객 연동)', nameWithHonorific(name) + ', 환영합니다!<br>이전 고객 정보와 반려견 <b>' + DB.pets.length + '마리</b>의 데이터가 자동으로 연동되었습니다.<br>로그인하여 확인하세요.');
+
+        localStorage.setItem('tail45_token', data.token);
+        const u = data.user;
+        DB.user.name = u.name;
+        DB.user.phone = u.phone;
+        DB.user.code = u.code;
+        DB.user.email = u.email || '';
+        DB.user.address = u.address || '미등록';
+        DB.user.addressDetail = u.address2 || '';
+        DB.user.gender = u.gender || '';
+        DB.user.pointBalance = u.points || 0;
+        DB.user.passwordChanged = !isSocial;
+        DB.user.provider = u.provider || provider;
+
+        DB.pets = (data.pets || []).map((d, i) => ({
+            id: d.id || ('P_' + i),
+            name: d.name || '이름 미등록',
+            size: d.size || d.type || '소형견',
+            age: d.birth ? calcDogAge(d.birth) : '미등록',
+            weight: d.weight ? d.weight + 'kg' : '미등록',
+            gender: d.gender || ''
+        }));
+
+        pendingSocialProvider = null;
+        delete DB._socialProfile;
+
+        const petCount = DB.pets.length;
+        const petMsg = petCount > 0 ? '<br>반려견 <b>' + petCount + '마리</b>도 함께 등록되었습니다.' : '';
+        const socialName = isSocial ? (provider === 'kakao' ? '카카오' : '네이버') : '';
+
+        if (isSocial) {
+            showAlert(`🎉 ${socialName} 가입 완료!`, nameWithHonorific(name) + ', 테일45 회원이 되신 것을 환영합니다!' + petMsg);
+            loginSuccess();
         } else {
-            showAlert('🎉 가입 완료!', nameWithHonorific(name) + ', 테일45 회원이 되신 것을 환영합니다!<br>로그인하여 시작하세요.');
+            showAlert('🎉 가입 완료!', nameWithHonorific(name) + ', 테일45 회원이 되신 것을 환영합니다!' + petMsg);
+            loginSuccess();
         }
-        toggleAuthMode(); // 로그인 화면으로 전환
+    } catch (e) {
+        showAlert('연결 오류', '서버에 연결할 수 없습니다.<br>인터넷 연결을 확인해주세요.');
     }
 }
 
