@@ -3044,7 +3044,7 @@ async function saveNewPet() {
     const vaccinated = document.getElementById('new-pet-vaccinated')?.checked || false;
 
     const weightNum = parseFloat(weight);
-    const size = normalizePetSize(weightNum);
+    const size = weightNum < 10 ? '소형견' : (weightNum < 25 ? '중형견' : '대형견');
     const gender = maleChecked ? 'male' : (femaleChecked ? 'female' : '');
 
     const token = localStorage.getItem('tail45_token');
