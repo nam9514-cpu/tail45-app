@@ -82,6 +82,52 @@ async function verifyToken(token, env) {
   }
 }
 
+async function hashPassword(plain) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iters = 100000;
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(plain), 'PBKDF2', false, ['deriveBits']
+  );
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt, iterations: iters, hash: 'SHA-256' },
+    keyMaterial, 256
+  );
+  return 'pbkdf2$' + iters + '$' + b64urlEncode(salt) + '$' + b64urlEncode(bits);
+}
+
+async function verifyPassword(plain, stored) {
+  if (!stored) return false;
+  if (!stored.startsWith('pbkdf2$')) return plain === stored;
+  const parts = stored.split('$');
+  if (parts.length !== 4) return false;
+  const iters = parseInt(parts[1], 10);
+  if (!iters || iters < 1000) return false;
+  try {
+    const saltBin = b64urlDecodeToString(parts[2]);
+    const expectedBin = b64urlDecodeToString(parts[3]);
+    const salt = new Uint8Array(saltBin.length);
+    for (let i = 0; i < saltBin.length; i++) salt[i] = saltBin.charCodeAt(i);
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw', new TextEncoder().encode(plain), 'PBKDF2', false, ['deriveBits']
+    );
+    const bits = await crypto.subtle.deriveBits(
+      { name: 'PBKDF2', salt, iterations: iters, hash: 'SHA-256' },
+      keyMaterial, expectedBin.length * 8
+    );
+    const actual = new Uint8Array(bits);
+    if (actual.length !== expectedBin.length) return false;
+    let diff = 0;
+    for (let i = 0; i < actual.length; i++) diff |= actual[i] ^ expectedBin.charCodeAt(i);
+    return diff === 0;
+  } catch (e) {
+    return false;
+  }
+}
+
+function isHashed(stored) {
+  return typeof stored === 'string' && stored.startsWith('pbkdf2$');
+}
+
 async function auth(request, env) {
   const token = getToken(request);
   const data = await verifyToken(token, env);
@@ -104,7 +150,12 @@ async function handleLogin(request, env) {
   if (!member) return json({ error: '등록되지 않은 전화번호입니다' }, 401);
   const hasPassword = member.password && member.password.trim() !== '';
   if (hasPassword) {
-    if (password !== member.password) return json({ error: '비밀번호가 올바르지 않습니다' }, 401);
+    const ok = await verifyPassword(password, member.password);
+    if (!ok) return json({ error: '비밀번호가 올바르지 않습니다' }, 401);
+    if (!isHashed(member.password)) {
+      const upgraded = await hashPassword(password);
+      await env.DB.prepare('UPDATE member SET password = ? WHERE code = ?').bind(upgraded, member.code).run();
+    }
   } else {
     if (password !== member.name) return json({ error: '첫 로그인 시 비밀번호란에 성함을 입력해주세요' }, 401);
   }
@@ -181,10 +232,11 @@ async function handleSignup(request, env) {
   const kakao = provider === 'kakao' ? 'Y' : 'N';
   const naver = provider === 'naver' ? 'Y' : 'N';
 
+  const storedPassword = password ? await hashPassword(password) : '';
   await env.DB.prepare(
     'INSERT INTO member (code, country, name, phone, password, email, gender, birth, address1, address2, kakao, naver, register, registerdate, points) ' +
     'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-  ).bind(code, 'KR', name, withZero, password, email, gender, birth || null, address1, address2, kakao, naver, 1, registerdate, 0).run();
+  ).bind(code, 'KR', name, withZero, storedPassword, email, gender, birth || null, address1, address2, kakao, naver, 1, registerdate, 0).run();
 
   const inserted = [];
   for (const pet of pets) {
@@ -253,7 +305,8 @@ async function changePassword(request, env) {
     'SELECT * FROM member WHERE phone = ? OR phone = ? LIMIT 1'
   ).bind(withZero, withoutZero).first();
   if (!member) return json({ error: '등록되지 않은 전화번호입니다' }, 404);
-  await env.DB.prepare('UPDATE member SET password = ? WHERE code = ?').bind(newPassword, member.code).run();
+  const hashed = await hashPassword(newPassword);
+  await env.DB.prepare('UPDATE member SET password = ? WHERE code = ?').bind(hashed, member.code).run();
   return json({ success: true, message: '비밀번호가 설정되었습니다' });
 }
 
