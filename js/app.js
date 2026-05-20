@@ -3025,7 +3025,7 @@ function toggleNewPetCheck(field) {
     }
 }
 
-function saveNewPet() {
+async function saveNewPet() {
     const name = (document.getElementById('new-pet-name')?.value || '').trim();
     const weight = (document.getElementById('new-pet-weight')?.value || '').trim();
     if (!name) { showAlert('입력 필요', '반려견 이름을 입력해주세요.'); return; }
@@ -3043,33 +3043,86 @@ function saveNewPet() {
     const neutered = document.getElementById('new-pet-neutered')?.checked || false;
     const vaccinated = document.getElementById('new-pet-vaccinated')?.checked || false;
 
-    const newPet = {
-        id: 'pet_' + Date.now(),
-        name,
-        type: breed,
-        age: ageParts.join(' ') || '',
-        weight: `${weight}kg`,
-        size: normalizePetSize(parseFloat(weight)),
-        gender: maleChecked ? 'male' : (femaleChecked ? 'female' : ''),
-        neutered,
-        vaccinated
-    };
+    const weightNum = parseFloat(weight);
+    const size = normalizePetSize(weightNum);
+    const gender = maleChecked ? 'male' : (femaleChecked ? 'female' : '');
 
-    DB.pets.push(newPet);
-    closeAddPetModal();
-    updateProfileUI();
-    showAlert('등록 완료', `${name}가(이) 성공적으로 등록되었습니다.`);
+    const token = localStorage.getItem('tail45_token');
+    if (!token) {
+        showAlert('로그인 필요', '로그인 후 다시 시도해주세요.');
+        return;
+    }
+
+    try {
+        const res = await fetch(API_BASE + '/api/pets/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({
+                name,
+                type: breed,
+                size,
+                gender,
+                weight: weightNum,
+                neut: neutered ? 1 : 0
+            })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+            showAlert('등록 실패', data.error || '반려견 등록에 실패했습니다.');
+            return;
+        }
+        const newPet = {
+            id: data.id,
+            name,
+            type: breed,
+            age: ageParts.join(' ') || '',
+            weight: `${weight}kg`,
+            size,
+            gender,
+            neutered,
+            vaccinated
+        };
+        DB.pets.push(newPet);
+        closeAddPetModal();
+        updateProfileUI();
+        showAlert('등록 완료', `${name}가(이) 성공적으로 등록되었습니다.`);
+    } catch (e) {
+        showAlert('연결 오류', '서버에 연결할 수 없습니다.<br>인터넷 연결을 확인해주세요.');
+    }
 }
 
 // ===== 반려견 삭제 =====
-function deletePet() {
+async function deletePet() {
     const idx = parseInt(document.getElementById('edit-pet-idx')?.value);
     if (isNaN(idx) || !DB.pets[idx]) return;
-    const petName = DB.pets[idx].name || '반려견';
-    DB.pets.splice(idx, 1);
-    closePetEditModal();
-    updateProfileUI();
-    showToast(`${petName} 삭제 완료`, 'trash');
+    const pet = DB.pets[idx];
+    const petName = pet.name || '반려견';
+    const petCode = pet.id;
+
+    const token = localStorage.getItem('tail45_token');
+    if (!token) {
+        showAlert('로그인 필요', '로그인 후 다시 시도해주세요.');
+        return;
+    }
+
+    try {
+        const res = await fetch(API_BASE + '/api/pets/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ petCode })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+            showAlert('삭제 실패', data.error || '반려견 삭제에 실패했습니다.');
+            return;
+        }
+        DB.pets.splice(idx, 1);
+        closePetEditModal();
+        updateProfileUI();
+        showToast(`${petName} 삭제 완료`, 'trash');
+    } catch (e) {
+        showAlert('연결 오류', '서버에 연결할 수 없습니다.<br>인터넷 연결을 확인해주세요.');
+    }
 }
 
 // ===== 비밀번호 찾기 =====
