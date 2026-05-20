@@ -62,7 +62,7 @@ async function handleLogin(request, env) {
   const token = btoa(JSON.stringify(tokenData));
   const isKakao = member.kakao && member.kakao !== 'N' && member.kakao !== '';
   const isNaver = member.naver && member.naver !== 'N' && member.naver !== '';
-  const provider = isKakao ? 'kakao' : isNaver ? 'naver' : 'phone';
+  const provider = isKakao ? 'kakao' : isNaver ? 'naver' : 'email';
 
   return json({
     success: true,
@@ -105,8 +105,10 @@ async function handleSignup(request, env) {
 
   if (!name) return json({ error: '이름을 입력해주세요' }, 400);
   if (!phoneRaw) return json({ error: '전화번호를 입력해주세요' }, 400);
-  if (provider === 'phone' && (!password || password.length < 6 || !/\d/.test(password) || !/[A-Za-z]/.test(password))) {
-    return json({ error: '비밀번호는 영문과 숫자를 포함한 6자리 이상 입력해주세요' }, 400);
+  if (provider !== 'kakao' && provider !== 'naver') {
+    if (!password || password.length < 6 || !/\d/.test(password) || !/[A-Za-z]/.test(password)) {
+      return json({ error: '비밀번호는 영문과 숫자를 포함한 6자리 이상 입력해주세요' }, 400);
+    }
   }
 
   const withZero = phoneRaw.startsWith('0') ? phoneRaw : '0' + phoneRaw;

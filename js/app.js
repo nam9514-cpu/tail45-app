@@ -577,7 +577,7 @@ async function handleSignupComplete() {
         }
     }
 
-    const provider = isSocial ? pendingSocialProvider : 'phone';
+    const provider = isSocial ? pendingSocialProvider : 'email';
 
     const petBlocks = document.querySelectorAll('.pet-form-block');
     const pets = [];
@@ -795,7 +795,7 @@ async function handleLogin() {
         DB.user.gender = u.gender || '';
         DB.user.pointBalance = u.points || 0;
         DB.user.passwordChanged = !data.isFirstLogin;
-        DB.user.provider = u.provider || 'phone';
+        DB.user.provider = u.provider || 'email';
 
         // 반려견 정보 저장 (DB의 진실의 원천으로 항상 덮어쓰기)
         DB.pets = (data.pets || []).map((d, i) => ({
