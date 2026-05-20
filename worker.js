@@ -26,15 +26,66 @@ function getToken(request) {
   return null;
 }
 
-function parseToken(token) {
-  try { return JSON.parse(atob(token)); } catch (e) { return null; }
+function b64urlEncode(buf) {
+  let bin = '';
+  const bytes = new Uint8Array(buf);
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function b64urlEncodeString(str) {
+  return b64urlEncode(new TextEncoder().encode(str));
+}
+
+function b64urlDecodeToString(s) {
+  s = s.replace(/-/g, '+').replace(/_/g, '/');
+  while (s.length % 4) s += '=';
+  return atob(s);
+}
+
+async function hmacKey(secret) {
+  return crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign', 'verify']
+  );
+}
+
+async function signToken(payload, env) {
+  if (!env.JWT_SECRET) throw new Error('JWT_SECRET 미설정');
+  const payloadStr = JSON.stringify(payload);
+  const payloadB64 = b64urlEncodeString(payloadStr);
+  const key = await hmacKey(env.JWT_SECRET);
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payloadB64));
+  return payloadB64 + '.' + b64urlEncode(sig);
+}
+
+async function verifyToken(token, env) {
+  if (!token || !env.JWT_SECRET) return null;
+  const parts = token.split('.');
+  if (parts.length !== 2) return null;
+  const [payloadB64, sigB64] = parts;
+  try {
+    const key = await hmacKey(env.JWT_SECRET);
+    const sigBin = b64urlDecodeToString(sigB64);
+    const sigBytes = new Uint8Array(sigBin.length);
+    for (let i = 0; i < sigBin.length; i++) sigBytes[i] = sigBin.charCodeAt(i);
+    const ok = await crypto.subtle.verify('HMAC', key, sigBytes, new TextEncoder().encode(payloadB64));
+    if (!ok) return null;
+    const payload = JSON.parse(b64urlDecodeToString(payloadB64));
+    if (!payload || !payload.code || !payload.exp || payload.exp < Date.now()) return null;
+    return payload;
+  } catch (e) {
+    return null;
+  }
 }
 
 async function auth(request, env) {
   const token = getToken(request);
-  if (!token) return null;
-  const data = parseToken(token);
-  if (!data || !data.code || data.exp < Date.now()) return null;
+  const data = await verifyToken(token, env);
+  if (!data) return null;
   const member = await env.DB.prepare('SELECT * FROM member WHERE code = ? LIMIT 1').bind(data.code).first();
   return member || null;
 }
@@ -59,7 +110,7 @@ async function handleLogin(request, env) {
   }
   const dogsResult = await env.DB.prepare('SELECT * FROM dog WHERE owner = ?').bind(member.code).all();
   const tokenData = { code: member.code, num: member.num, exp: Date.now() + 2592000000 };
-  const token = btoa(JSON.stringify(tokenData));
+  const token = await signToken(tokenData, env);
   const isKakao = member.kakao && member.kakao !== 'N' && member.kakao !== '';
   const isNaver = member.naver && member.naver !== 'N' && member.naver !== '';
   const provider = isKakao ? 'kakao' : isNaver ? 'naver' : 'email';
@@ -146,7 +197,7 @@ async function handleSignup(request, env) {
   }
 
   const tokenData = { code, num: 0, exp: Date.now() + 2592000000 };
-  const token = btoa(JSON.stringify(tokenData));
+  const token = await signToken(tokenData, env);
 
   return json({
     success: true,
