@@ -1021,13 +1021,13 @@
                     <div class="input-group flex-1">
                         <label>년</label>
                         <div class="input-wrapper" style="background:#f8f9fa;">
-                            <input type="number" id="edit-pet-year" placeholder="2">
+                            <input type="number" id="edit-pet-year" placeholder="2" min="0" max="30" step="1" oninput="clampInt(this, 0, 30)">
                         </div>
                     </div>
                     <div class="input-group flex-1">
                         <label>개월</label>
                         <div class="input-wrapper" style="background:#f8f9fa;">
-                            <input type="number" id="edit-pet-month" placeholder="5">
+                            <input type="number" id="edit-pet-month" placeholder="5" min="0" max="11" step="1" oninput="clampInt(this, 0, 11)">
                         </div>
                     </div>
                 </div>
@@ -1103,13 +1103,13 @@
                     <div class="input-group flex-1">
                         <label>년</label>
                         <div class="input-wrapper" style="background:#f8f9fa;">
-                            <input type="number" id="new-pet-year" placeholder="2">
+                            <input type="number" id="new-pet-year" placeholder="2" min="0" max="30" step="1" oninput="clampInt(this, 0, 30)">
                         </div>
                     </div>
                     <div class="input-group flex-1">
                         <label>개월</label>
                         <div class="input-wrapper" style="background:#f8f9fa;">
-                            <input type="number" id="new-pet-month" placeholder="5">
+                            <input type="number" id="new-pet-month" placeholder="5" min="0" max="11" step="1" oninput="clampInt(this, 0, 11)">
                         </div>
                     </div>
                 </div>
@@ -1580,6 +1580,6 @@
 
 
     <script src="js/customer-data.js"></script>
-    <script src="js/app.js?v=20260520b"></script>
+    <script src="js/app.js?v=20260520c"></script>
 </body>
 </html>

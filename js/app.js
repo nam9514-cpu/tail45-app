@@ -1077,6 +1077,18 @@ const yardOccupants = {
     b:     [],
 };
 
+// 숫자 입력 필드를 정수 + [min, max] 범위로 클램프
+function clampInt(input, min, max) {
+    if (!input) return;
+    let v = input.value.replace(/[^\d]/g, '');
+    if (v === '') { input.value = ''; return; }
+    let n = parseInt(v, 10);
+    if (isNaN(n)) { input.value = ''; return; }
+    if (n < min) n = min;
+    if (n > max) n = max;
+    input.value = String(n);
+}
+
 /**
  * 반려견 크기를 '소형견' | '중형견' | '대형견'으로 정규화
  */
